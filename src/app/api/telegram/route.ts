@@ -64,7 +64,7 @@ export async function PUT(req: Request) {
 
     const admin = getSupabaseAdmin()
     const db = admin as unknown as SupabaseClient<Database>
-    const { data: me, error: meErr } = await admin
+    const { data: me, error: meErr } = await db
       .from("profiles")
       .select("company_id, role")
       .eq("user_id", userId)
@@ -72,7 +72,12 @@ export async function PUT(req: Request) {
     if (meErr || !me) {
       return NextResponse.json({ error: "Profile not found" }, { status: 400 })
     }
-    if (!(["super_admin", "business_admin"] as const).includes(me.role as string)) {
+    // Narrow role to admin roles using a type guard to satisfy TS
+    const isAdminRole = (
+      r: Database["public"]["Enums"]["user_role"] | null | undefined,
+    ): r is "super_admin" | "business_admin" => r === "super_admin" || r === "business_admin"
+
+    if (!isAdminRole(me.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
