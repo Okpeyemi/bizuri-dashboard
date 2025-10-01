@@ -128,11 +128,21 @@ export default function TelegramBotPage() {
         </Card>
         <Card className="p-4">
           <h3 className="text-sm font-semibold">Commandes</h3>
-          <ul className="mt-3 list-inside list-disc text-sm text-muted-foreground">
-            <li><code>/start</code> — démarrer l’interaction</li>
-            <li><code>/help</code> — aide</li>
-            <li><code>/stop</code> — arrêter les notifications</li>
-          </ul>
+          <div className="mt-3 space-y-3 text-sm text-muted-foreground">
+            <ul className="list-inside list-disc">
+              <li><code>/start</code> — démarrer l’interaction</li>
+              <li><code>/newbot</code> — créer un nouveau bot</li>
+              <li><code>/mybots</code> — modifiez votre bot</li>
+              <li><code>/setname</code> — changez le nom de votre bot</li>
+              <li><code>/setdescription</code> — changez la description de votre bot</li>
+              <li><code>/setabouttext</code> — changez l’about info de votre bot</li>
+              <li><code>/setuserpic</code> — changez la photo de votre bot</li>
+              <li><code>/setcommands</code> — changez la liste des commandes</li>
+              <li><code>/deletebot</code> — supprimez votre bot</li>
+              <li><code>/help</code> — aide</li>
+              <li><code>/stop</code> — arrêter les notifications</li>
+            </ul>
+          </div>
         </Card>
       </div>
     </DashboardShell>

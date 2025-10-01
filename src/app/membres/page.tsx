@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { DashboardShell } from "@/components/dashboard-shell"
 
  type Member = {
@@ -80,56 +81,63 @@ export default function MembresPage() {
 
   return (
     <DashboardShell title="Membres">
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="p-4">
-          <h3 className="text-sm font-semibold">Ajouter un membre</h3>
-          <form onSubmit={invite} className="mt-4 grid gap-3">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="status">Statut</Label>
-              <select
-                id="status"
-                className="bg-background text-foreground border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 h-10 w-full rounded-md border px-3 py-2 text-sm"
-                value={status}
-                onChange={(e) => setStatus(e.target.value as "agent" | "manager")}
-              >
-                <option value="agent">Agent</option>
-                <option value="manager">Manager</option>
-              </select>
-            </div>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? "Ajout..." : "Ajouter"}
-            </Button>
-            {submitMsg ? <p className="text-green-600 text-sm">{submitMsg}</p> : null}
-            {error ? <p className="text-destructive text-sm">{error}</p> : null}
-          </form>
-        </Card>
-        <div>
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading...</p>
-          ) : items.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun membre.</p>
-          ) : (
-            <div className="grid gap-3">
-              {items.map((m) => (
-                <Card key={m.user_id} className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-medium">{m.full_name}</div>
-                      <div className="text-xs text-muted-foreground">{m.role} · {m.member_status}</div>
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(m.created_at).toLocaleDateString()}
-                    </div>
+      <div className="mb-4 flex items-center justify-end">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button>Ajouter un membre</Button>
+          </SheetTrigger>
+          <SheetContent side="right">
+            <SheetHeader>
+              <SheetTitle>Ajouter un membre</SheetTitle>
+            </SheetHeader>
+            <form onSubmit={invite} className="mt-4 grid gap-3">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="status">Statut</Label>
+                <select
+                  id="status"
+                  className="bg-background text-foreground border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 h-10 w-full rounded-md border px-3 py-2 text-sm"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as "agent" | "manager")}
+                >
+                  <option value="agent">Agent</option>
+                  <option value="manager">Manager</option>
+                </select>
+              </div>
+              <Button type="submit" disabled={submitting}>
+                {submitting ? "Ajout..." : "Ajouter"}
+              </Button>
+              {submitMsg ? <p className="text-green-600 text-sm">{submitMsg}</p> : null}
+              {error ? <p className="text-destructive text-sm">{error}</p> : null}
+            </form>
+          </SheetContent>
+        </Sheet>
+      </div>
+      <div>
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        ) : items.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Aucun membre.</p>
+        ) : (
+          <div className="grid gap-3">
+            {items.map((m) => (
+              <Card key={m.user_id} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-medium">{m.full_name}</div>
+                    <div className="text-xs text-muted-foreground">{m.role} · {m.member_status}</div>
                   </div>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
+                  <div className="text-xs text-muted-foreground">
+                    {new Date(m.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </DashboardShell>
   )

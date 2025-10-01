@@ -18,6 +18,7 @@ export async function POST(req: Request) {
     const company_name = (body.company_name ?? body.company ?? "").toString().trim()
     const password = (body.password ?? "").toString()
     const role = (body.role ?? "").toString()
+    const company_logo_url = (body.company_logo_url ?? "").toString().trim()
 
     if (!full_name || !business_email || !company_name || !password || !role) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
       email: business_email,
       password,
       email_confirm: true,
-      user_metadata: { full_name, role, company_name },
+      user_metadata: { full_name, role, company_name, company_logo_url },
     })
 
     if (userErr || !userRes.user) {

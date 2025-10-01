@@ -2,13 +2,8 @@
 
 import * as React from "react"
 import {
-  AudioWaveform,
   Bot,
-  Command,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
   Settings2,
   LayoutDashboard,
   Megaphone,
@@ -17,9 +12,7 @@ import {
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -36,23 +29,6 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
   navMain: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, isActive: true },
     { title: "Campagnes", url: "/campagnes", icon: Megaphone },
@@ -61,29 +37,13 @@ const data = {
     { title: "Settings", url: "/settings", icon: Settings2 },
     { title: "Telegram Bot", url: "/telegram-bot", icon: Bot },
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [currentUser, setCurrentUser] = React.useState<{ name: string; email: string; avatar: string }>(
     data.user
   )
+  const [company, setCompany] = React.useState<{ name: string; logoUrl?: string }>({ name: "Company" })
 
   React.useEffect(() => {
     let mounted = true
@@ -94,11 +54,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       const meta = u.user_metadata as Record<string, unknown> | null
       const fullName =
         meta && typeof meta["full_name"] === "string" ? (meta["full_name"] as string) : undefined
+      const companyName = meta && typeof meta["company_name"] === "string" ? (meta["company_name"] as string) : undefined
+      const companyLogoUrl = meta && typeof meta["company_logo_url"] === "string" ? (meta["company_logo_url"] as string) : undefined
+      const avatarUrl = meta && typeof meta["avatar_url"] === "string" ? (meta["avatar_url"] as string) : undefined
       setCurrentUser({
         name: fullName || u.email?.split("@")[0] || "User",
         email: u.email || "",
-        avatar: "/avatars/shadcn.jpg",
+        avatar: avatarUrl || "/avatars/shadcn.jpg",
       })
+      setCompany({ name: companyName || "Company", logoUrl: companyLogoUrl || undefined })
     })()
     return () => {
       mounted = false
@@ -108,11 +72,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        {/* Bizuri brand */}
+        <div className="flex items-center gap-2 px-2 py-1.5">
+          <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+            <GalleryVerticalEnd className="size-4" />
+          </div>
+          <span className="text-sm font-semibold">Bizuri</span>
+        </div>
+        {/* Company display (no dropdown) */}
+        <div className="flex items-center gap-2 px-2 py-2">
+          <div className="bg-sidebar-primary text-sidebar-primary-foreground flex size-8 items-center justify-center rounded-lg overflow-hidden">
+            {company.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={company.logoUrl} alt={company.name} className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-xs font-semibold">
+                {company.name?.slice(0, 2).toUpperCase()}
+              </span>
+            )}
+          </div>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-medium">{company.name}</span>
+            <span className="truncate text-xs">Organisation</span>
+          </div>
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={currentUser} />

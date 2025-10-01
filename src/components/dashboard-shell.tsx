@@ -1,7 +1,7 @@
 "use client"
 import { RequireAuth } from "@/components/require-auth"
 import { AppSidebar } from "@/components/app-sidebar"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ModeToggle } from "@/components/theme-toggle"
 import {
   SidebarInset,
   SidebarProvider,
@@ -46,7 +46,7 @@ export function DashboardShell({
               </Breadcrumb>
             </div>
             <div className="flex items-center gap-2">
-              <ThemeToggle />
+              <ModeToggle />
             </div>
           </header>
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
