@@ -4,6 +4,7 @@ import { supabaseClient } from "@/lib/supabase/client"
 import { Card } from "@/components/ui/card"
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Loader } from "@/components/ui/loader"
 
 type Client = {
   id: string
@@ -59,7 +60,7 @@ export default function ClientsPage() {
   return (
     <DashboardShell title="Clients">
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <Loader />
       ) : error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : tgUsers.length === 0 ? (

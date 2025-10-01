@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { DashboardShell } from "@/components/dashboard-shell"
+import { Loader } from "@/components/ui/loader"
 
  type Member = {
   user_id: string
@@ -179,7 +180,7 @@ export default function MembresPage() {
       {role === "business_members" ? null : (
       <div>
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <Loader />
         ) : items.length === 0 ? (
           <p className="text-sm text-muted-foreground">Aucun membre.</p>
         ) : (

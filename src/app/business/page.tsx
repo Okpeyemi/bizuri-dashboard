@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { supabaseClient } from "@/lib/supabase/client"
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Card } from "@/components/ui/card"
+import { Loader } from "@/components/ui/loader"
 
 type Company = { id: string; name: string; business_email: string; created_at: string }
 
@@ -36,7 +37,7 @@ export default function BusinessPage() {
       {role !== "super_admin" ? (
         <p className="text-sm text-muted-foreground">Accès interdit.</p>
       ) : loading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <Loader />
       ) : error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : items.length === 0 ? (

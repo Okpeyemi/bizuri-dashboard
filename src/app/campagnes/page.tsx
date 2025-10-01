@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import Image from "next/image"
+import { Loader } from "@/components/ui/loader"
 
 type Campaign = {
   id: string
@@ -252,7 +253,7 @@ export default function CampagnesPage() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <Loader />
       ) : error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : items.length === 0 ? (

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { supabaseClient } from "@/lib/supabase/client"
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Card } from "@/components/ui/card"
+import { Loader } from "@/components/ui/loader"
 
 export default function LogsPage() {
   const [role, setRole] = useState<string | null>(null)
@@ -38,7 +39,7 @@ export default function LogsPage() {
       {role !== "super_admin" ? (
         <p className="text-sm text-muted-foreground">Accès interdit.</p>
       ) : loading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <Loader />
       ) : error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : !data ? null : (

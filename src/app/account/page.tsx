@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Loader } from "@/components/ui/loader"
 
 export default function AccountPage() {
   const [loading, setLoading] = useState(true)
@@ -127,7 +128,7 @@ export default function AccountPage() {
     <DashboardShell title="Account">
       <Card className="max-w-2xl p-4">
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <Loader />
         ) : (
           <div className="grid gap-4">
             <div className="grid gap-2">

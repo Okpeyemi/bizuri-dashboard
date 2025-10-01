@@ -6,6 +6,7 @@ import { DashboardShell } from "@/components/dashboard-shell"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowUpRight } from "lucide-react"
+import { Loader } from "@/components/ui/loader"
 
 type DashboardCounts = {
   campaigns: number
@@ -101,7 +102,7 @@ export default function DashboardPage() {
   return (
     <DashboardShell title="Overview">
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <Loader />
       ) : error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : (
