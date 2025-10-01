@@ -188,7 +188,12 @@ export default function MembresPage() {
               <Card key={m.user_id} className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-medium">{m.full_name}</div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-medium">{m.full_name}</div>
+                      {m.disabled ? (
+                        <span className="bg-destructive/15 text-destructive rounded px-2 py-0.5 text-[11px]">Désactivé</span>
+                      ) : null}
+                    </div>
                     <div className="text-xs text-muted-foreground">{m.role} · {m.member_status}</div>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -196,7 +201,13 @@ export default function MembresPage() {
                     {role !== "business_members" ? (
                       <button
                         className="text-primary underline"
-                        onClick={() => toggleAccess(m.user_id, m.disabled)}
+                        onClick={() => {
+                          if (!m.disabled) {
+                            const ok = window.confirm("Désactiver ce membre ? Il ne pourra plus se connecter.")
+                            if (!ok) return
+                          }
+                          toggleAccess(m.user_id, m.disabled)
+                        }}
                       >
                         {m.disabled ? "Activer" : "Désactiver"}
                       </button>
