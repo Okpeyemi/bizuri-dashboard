@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
+import { getCompanyPlan, limitsFor } from "@/lib/subscription"
 
 export const runtime = "nodejs"
 
@@ -86,7 +87,7 @@ export async function POST(
         { onConflict: "company_id,user_id" }
       )
 
-    // Optionally insert into clients if we have a phone and not existing
+    // Optionally insert into clients if we have a phone and not existing (respect plan limits)
     if (phone) {
       const full_name = [first_name, last_name].filter(Boolean).join(" ") || username || "Client"
       const { data: existing } = await admin
@@ -96,7 +97,22 @@ export async function POST(
         .eq("phone", phone)
         .maybeSingle()
       if (!existing) {
-        await admin.from("clients").insert({ company_id, full_name, phone })
+        // Enforce plan limits
+        const plan = await getCompanyPlan(admin, company_id)
+        const { maxClients } = limitsFor(plan)
+        if (maxClients != null) {
+          const { count, error: cntErr } = await admin
+            .from("clients")
+            .select("id", { count: "exact", head: true })
+            .eq("company_id", company_id)
+          if (!cntErr && (count ?? 0) >= maxClients) {
+            // silently skip if limit reached
+          } else {
+            await admin.from("clients").insert({ company_id, full_name, phone })
+          }
+        } else {
+          await admin.from("clients").insert({ company_id, full_name, phone })
+        }
       }
     }
 

@@ -9,14 +9,16 @@ import { useRouter } from "next/navigation"
 
 export function RegisterForm({
   className,
+  fixedRole,
   ...props
-}: React.ComponentProps<"form">) {
+}: React.ComponentProps<"form"> & { fixedRole?: "super_admin" | "business_admin" | "business_members" }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [showPw, setShowPw] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -30,25 +32,31 @@ export function RegisterForm({
     const company_name = (fd.get("company_name") || "").toString().trim()
     const password = (fd.get("password") || "").toString()
     const confirm = (fd.get("confirm") || "").toString()
-    const role = (fd.get("role") || "").toString()
-    const company_logo_url = (fd.get("company_logo_url") || "").toString().trim()
+    const role = fixedRole || (fd.get("role") || "").toString()
+    const company_logo_file = fd.get("company_logo") as File | null
 
     if (password !== confirm) {
       setError("Passwords do not match")
       return
     }
-    if (!full_name || !business_email || !company_name || !password || !role) {
+    if (!full_name || !business_email || !company_name || !password || (!fixedRole && !role)) {
       setError("Please fill all required fields")
       return
     }
 
     try {
       setLoading(true)
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ full_name, business_email, company_name, password, role, company_logo_url }),
-      })
+      // Submit as multipart/form-data so backend can optionally handle file upload
+      const send = new FormData()
+      send.set("full_name", full_name)
+      send.set("business_email", business_email)
+      send.set("company_name", company_name)
+      send.set("password", password)
+      send.set("role", role)
+      if (company_logo_file instanceof File) {
+        send.set("company_logo", company_logo_file)
+      }
+      const res = await fetch("/api/register", { method: "POST", body: send })
       const data = await res.json()
       if (!res.ok) {
         throw new Error(data?.error || "Registration failed")
@@ -56,6 +64,7 @@ export function RegisterForm({
       setSuccess("Account created. You can now log in.")
       setTimeout(() => router.push("/login"), 800)
       form.reset()
+      setLogoPreview(null)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong"
       setError(message)
@@ -113,23 +122,47 @@ export function RegisterForm({
           </div>
         </div>
         <div className="grid gap-3">
-          <Label htmlFor="company_logo_url">Company logo URL (optional)</Label>
-          <Input id="company_logo_url" name="company_logo_url" type="url" placeholder="https://.../logo.png" />
+          <Label htmlFor="company_logo">Company logo (optional)</Label>
+          <input
+            id="company_logo"
+            name="company_logo"
+            type="file"
+            accept="image/*"
+            className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-primary-foreground hover:file:bg-primary/90"
+            onChange={(e) => {
+              const f = e.target.files?.[0]
+              if (f) {
+                const url = URL.createObjectURL(f)
+                setLogoPreview((prev) => {
+                  if (prev) URL.revokeObjectURL(prev)
+                  return url
+                })
+              } else {
+                setLogoPreview(null)
+              }
+            }}
+          />
+          {logoPreview ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoPreview} alt="Logo preview" className="h-12 w-12 rounded object-cover" />
+          ) : null}
         </div>
-        <div className="grid gap-3">
-          <Label htmlFor="role">Role</Label>
-          <select
-            id="role"
-            name="role"
-            required
-            className="bg-background text-foreground border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 h-10 w-full rounded-md border px-3 py-2 text-sm"
-            defaultValue="business_members"
-          >
-            <option value="super_admin">Super Admin</option>
-            <option value="business_admin">Business Admin</option>
-            <option value="business_members">Business Member</option>
-          </select>
-        </div>
+        {fixedRole ? null : (
+          <div className="grid gap-3">
+            <Label htmlFor="role">Role</Label>
+            <select
+              id="role"
+              name="role"
+              required
+              className="bg-background text-foreground border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 h-10 w-full rounded-md border px-3 py-2 text-sm"
+              defaultValue="business_members"
+            >
+              <option value="super_admin">Super Admin</option>
+              <option value="business_admin">Business Admin</option>
+              <option value="business_members">Business Member</option>
+            </select>
+          </div>
+        )}
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Creating account..." : "Sign up"}
         </Button>

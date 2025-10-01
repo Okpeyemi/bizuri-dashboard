@@ -42,6 +42,8 @@ export default function CampagnesPage() {
   const [saving, setSaving] = useState(false)
   const [togglingId, setTogglingId] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
+  const [atCampaignLimit, setAtCampaignLimit] = useState(false)
+  const [botNotConfigured, setBotNotConfigured] = useState(false)
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -61,6 +63,21 @@ export default function CampagnesPage() {
         const { data: session } = await supabaseClient.auth.getSession()
         const token = session.session?.access_token
         if (!token) throw new Error("Not authenticated")
+        // subscription usage
+        const subRes = await fetch("/api/subscription", { headers: { Authorization: `Bearer ${token}` } })
+        const subJson = await subRes.json()
+        if (subRes.ok) {
+          const max = subJson?.limits?.maxCampaignsPerMonth as number | null
+          const used = subJson?.usage?.campaigns_month as number | undefined
+          if (max != null && typeof used === "number") setAtCampaignLimit(used >= max)
+          else setAtCampaignLimit(false)
+        }
+        // bot settings
+        const botRes = await fetch("/api/telegram", { headers: { Authorization: `Bearer ${token}` } })
+        const botJson = await botRes.json()
+        if (botRes.ok) {
+          setBotNotConfigured(!botJson?.data?.bot_token)
+        }
         const res = await fetch("/api/campaigns", {
           headers: { Authorization: `Bearer ${token}` },
         })
@@ -163,7 +180,7 @@ export default function CampagnesPage() {
       <div className="mb-4 flex items-center justify-end">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <Button>Créer une campagne</Button>
+            <Button disabled={atCampaignLimit || botNotConfigured}>Créer une campagne</Button>
           </SheetTrigger>
           <SheetContent>
             <SheetHeader>
@@ -220,8 +237,14 @@ export default function CampagnesPage() {
                   <Input id="promotion_value" type="number" value={form.promotion_value} onChange={(e) => setForm({ ...form, promotion_value: e.target.value })} />
                 </div>
               </div>
-              <div>
-                <Button type="submit" disabled={saving}>{saving ? "Création..." : "Créer"}</Button>
+              <div className="flex items-center gap-2">
+                <Button type="submit" disabled={saving || atCampaignLimit || botNotConfigured}>{saving ? "Création..." : "Créer"}</Button>
+                {atCampaignLimit ? (
+                  <a href="/settings?tab=subscription" className="text-xs text-primary underline">Mettre à niveau le plan</a>
+                ) : null}
+                {botNotConfigured ? (
+                  <a href="/telegram-bot" className="text-xs text-primary underline">Configurer le bot d’abord</a>
+                ) : null}
               </div>
             </form>
           </SheetContent>

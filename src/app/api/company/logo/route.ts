@@ -27,39 +27,41 @@ export async function POST(req: Request) {
 
     const admin = getSupabaseAdmin()
 
-    // Ensure bucket exists (ignore if already exists)
+    // Get company_id from profile
+    const { data: me, error: meErr } = await admin
+      .from("profiles")
+      .select("company_id")
+      .eq("user_id", userRes.user.id)
+      .single()
+    if (meErr || !me) return NextResponse.json({ error: "Profile not found" }, { status: 400 })
+
+    // Ensure bucket exists
     try {
-      await admin.storage.createBucket("avatars", { public: true })
-    } catch (e) {
-      // ignore if it already exists
-    }
+      await admin.storage.createBucket("company-logos", { public: true })
+    } catch {}
 
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase()
-    const path = `users/${userRes.user.id}-${Date.now()}.${ext}`
+    const path = `${me.company_id}/${userRes.user.id}-${Date.now()}.${ext}`
 
-    const { error: upErr } = await admin.storage.from("avatars").upload(path, buffer, {
+    const { error: upErr } = await admin.storage.from("company-logos").upload(path, buffer, {
       contentType: file.type || "image/jpeg",
       upsert: true,
     })
-    if (upErr) {
-      return NextResponse.json({ error: upErr.message }, { status: 400 })
-    }
+    if (upErr) return NextResponse.json({ error: upErr.message }, { status: 400 })
 
-    const { data: pub } = admin.storage.from("avatars").getPublicUrl(path)
+    const { data: pub } = admin.storage.from("company-logos").getPublicUrl(path)
     const publicUrl = pub.publicUrl
 
-    // Update metadata
+    // Update metadata on current user
     const currentMeta = (userRes.user.user_metadata || {}) as Record<string, unknown>
     const { error: updErr } = await admin.auth.admin.updateUserById(userRes.user.id, {
-      user_metadata: { ...currentMeta, avatar_url: publicUrl },
+      user_metadata: { ...currentMeta, company_logo_url: publicUrl },
     })
-    if (updErr) {
-      return NextResponse.json({ error: updErr.message }, { status: 400 })
-    }
+    if (updErr) return NextResponse.json({ error: updErr.message }, { status: 400 })
 
-    return NextResponse.json({ ok: true, avatar_url: publicUrl })
+    return NextResponse.json({ ok: true, company_logo_url: publicUrl })
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Server error"
     return NextResponse.json({ error: message }, { status: 500 })

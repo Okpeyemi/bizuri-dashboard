@@ -22,28 +22,28 @@ import {
 } from "@/components/ui/sidebar"
 import { supabaseClient } from "@/lib/supabase/client"
 
-// Navigation data
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, isActive: true },
-    { title: "Campagnes", url: "/campagnes", icon: Megaphone },
-    { title: "Clients", url: "/clients", icon: Users },
-    { title: "Membres", url: "/membres", icon: UserCog },
-    { title: "Settings", url: "/settings", icon: Settings2 },
-    { title: "Telegram Bot", url: "/telegram-bot", icon: Bot },
-  ],
-}
+// Base navigation
+const baseNav = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, isActive: true },
+  { title: "Campagnes", url: "/campagnes", icon: Megaphone },
+  { title: "Clients", url: "/clients", icon: Users },
+  { title: "Membres", url: "/membres", icon: UserCog },
+  { title: "Settings", url: "/settings", icon: Settings2 },
+  { title: "Telegram Bot", url: "/telegram-bot", icon: Bot },
+]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [currentUser, setCurrentUser] = React.useState<{ name: string; email: string; avatar: string }>(
-    data.user
+    { name: "User", email: "", avatar: "/avatars/shadcn.jpg" }
   )
   const [company, setCompany] = React.useState<{ name: string; logoUrl?: string }>({ name: "Company" })
+  const [role, setRole] = React.useState<string | null>(null)
+  const [navItems, setNavItems] = React.useState(baseNav)
+  const [planInfo, setPlanInfo] = React.useState<{
+    plan: "freemium" | "premium" | "vip" | null
+    membersRemaining: number | null
+    campaignsRemaining: number | null
+  }>({ plan: null, membersRemaining: null, campaignsRemaining: null })
 
   React.useEffect(() => {
     let mounted = true
@@ -57,12 +57,46 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       const companyName = meta && typeof meta["company_name"] === "string" ? (meta["company_name"] as string) : undefined
       const companyLogoUrl = meta && typeof meta["company_logo_url"] === "string" ? (meta["company_logo_url"] as string) : undefined
       const avatarUrl = meta && typeof meta["avatar_url"] === "string" ? (meta["avatar_url"] as string) : undefined
+      const r = meta && typeof meta["role"] === "string" ? (meta["role"] as string) : null
       setCurrentUser({
         name: fullName || u.email?.split("@")[0] || "User",
         email: u.email || "",
         avatar: avatarUrl || "/avatars/shadcn.jpg",
       })
       setCompany({ name: companyName || "Company", logoUrl: companyLogoUrl || undefined })
+      setRole(r)
+
+      // subscription info
+      try {
+        const { data: session } = await supabaseClient.auth.getSession()
+        const token = session.session?.access_token
+        if (token) {
+          const res = await fetch("/api/subscription", { headers: { Authorization: `Bearer ${token}` } })
+          const json = await res.json()
+          if (res.ok) {
+            const plan = json.plan as "freemium" | "premium" | "vip"
+            const limits = json.limits || {}
+            const usage = json.usage || {}
+            const membersRemaining = limits.maxMembers == null ? null : Math.max(0, (limits.maxMembers as number) - (usage.members as number || 0))
+            const campaignsRemaining = limits.maxCampaignsPerMonth == null ? null : Math.max(0, (limits.maxCampaignsPerMonth as number) - (usage.campaigns_month as number || 0))
+            setPlanInfo({ plan, membersRemaining, campaignsRemaining })
+          }
+        }
+      } catch {}
+
+      // role-based nav
+      let items = [...baseNav]
+      if (r === "business_members") {
+        items = items.filter((i) => i.url !== "/membres")
+      }
+      if (r === "super_admin") {
+        // Add Business and Logs pages
+        const hasBusiness = items.some((i) => i.url === "/business")
+        if (!hasBusiness) items.splice(1, 0, { title: "Business", url: "/business", icon: GalleryVerticalEnd })
+        const hasLogs = items.some((i) => i.url === "/logs")
+        if (!hasLogs) items.splice(2, 0, { title: "Logs", url: "/logs", icon: Settings2 })
+      }
+      setNavItems(items)
     })()
     return () => {
       mounted = false
@@ -74,10 +108,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         {/* Bizuri brand */}
         <div className="flex items-center gap-2 px-2 py-1.5">
-          <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <GalleryVerticalEnd className="size-4" />
-          </div>
-          <span className="text-sm font-semibold">Bizuri</span>
+          <span className="text-sm font-semibold text-primary">Bizuri</span>
         </div>
         {/* Company display (no dropdown) */}
         <div className="flex items-center gap-2 px-2 py-2">
@@ -98,9 +129,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
+        {/* Plan info and upgrade */}
+        <div className="px-2 py-2 text-xs text-muted-foreground">
+          {planInfo.plan ? (
+            <div className="mb-2">
+              <div>Plan: <span className="font-medium">{planInfo.plan}</span></div>
+              <div>
+                Membres restants: {planInfo.membersRemaining == null ? "∞" : planInfo.membersRemaining} · Campagnes restantes: {planInfo.campaignsRemaining == null ? "∞" : planInfo.campaignsRemaining}
+              </div>
+              <a href="/settings?tab=subscription" className="text-primary underline">Mettre à niveau</a>
+            </div>
+          ) : null}
+        </div>
         <NavUser user={currentUser} />
       </SidebarFooter>
       <SidebarRail />

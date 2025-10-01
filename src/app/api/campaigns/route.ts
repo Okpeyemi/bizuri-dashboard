@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getSupabaseForToken } from "@/lib/supabase/server"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
+import { firstDayOfCurrentMonth, getCompanyPlan, limitsFor } from "@/lib/subscription"
 
 type TelegramChatId = { chat_id: number }
 
@@ -148,6 +149,41 @@ export async function POST(req: Request) {
     const ends_at = body.ends_at == null ? null : String(body.ends_at)
     const promotion_type = body.promotion_type == null ? null : String(body.promotion_type)
     const promotion_value = body.promotion_value == null ? null : Number(body.promotion_value)
+
+    // Enforce monthly campaign limit (skip for super_admin)
+    if (me.role !== "super_admin") {
+      const plan = await getCompanyPlan(admin, me.company_id)
+      const limits = limitsFor(plan)
+      if (limits.maxCampaignsPerMonth != null) {
+        const monthStart = firstDayOfCurrentMonth()
+        const { count, error: cntErr } = await admin
+          .from("campaigns")
+          .select("id", { count: "exact", head: true })
+          .eq("company_id", me.company_id)
+          .gte("created_at", monthStart)
+        if (cntErr) {
+          return NextResponse.json({ error: cntErr.message }, { status: 400 })
+        }
+        if ((count ?? 0) >= limits.maxCampaignsPerMonth) {
+          return NextResponse.json({ error: "Limite de campagnes mensuelles atteinte pour votre plan" }, { status: 403 })
+        }
+      }
+    }
+
+    // Enforce bot configuration (require bot_token) for non-super_admin
+    if (me.role !== "super_admin") {
+      const { data: bot, error: botErr } = await admin
+        .from("telegram_bot_settings")
+        .select("bot_token")
+        .eq("company_id", me.company_id)
+        .maybeSingle()
+      if (botErr) {
+        return NextResponse.json({ error: botErr.message }, { status: 400 })
+      }
+      if (!bot?.bot_token) {
+        return NextResponse.json({ error: "Veuillez configurer le bot Telegram avant de créer une campagne" }, { status: 400 })
+      }
+    }
 
     const { data: inserted, error: insErr } = await admin
       .from("campaigns")

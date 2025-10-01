@@ -45,6 +45,7 @@ type Operation = { type: string; at: string; title: string }
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [role, setRole] = useState<string | null>(null)
   const [counts, setCounts] = useState<DashboardCounts | null>(null)
   const [recentCampaigns, setRecentCampaigns] = useState<DashboardCampaign[]>([])
   const [subscribers, setSubscribers] = useState<DashboardSubscriber[]>([])
@@ -60,6 +61,13 @@ export default function DashboardPage() {
         const { data: session } = await supabaseClient.auth.getSession()
         const token = session.session?.access_token
         if (!token) throw new Error("Not authenticated")
+        // role
+        const { data: user } = await supabaseClient.auth.getUser()
+        // was: const r = (user.user?.user_metadata as any)?.role as string | undefined
+        const meta = user.user?.user_metadata as Record<string, unknown> | undefined
+        const r = meta && typeof meta["role"] === "string" ? (meta["role"] as string) : undefined
+        setRole(r || null)
+
         const res = await fetch("/api/dashboard", { headers: { Authorization: `Bearer ${token}` } })
         const json = await res.json()
         if (!res.ok) throw new Error(json?.error || "Failed to load dashboard")
@@ -87,7 +95,7 @@ export default function DashboardPage() {
     { label: "Campagnes", value: counts?.campaigns ?? 0 },
     { label: "Publiées", value: counts?.campaigns_published ?? 0 },
     { label: "Abonnés Telegram", value: counts?.telegram_subscribers ?? 0 },
-    { label: "Membres", value: counts?.members ?? 0 },
+    ...(role === "business_members" ? [] : [{ label: "Membres", value: counts?.members ?? 0 } as const]),
   ]
 
   return (
@@ -109,7 +117,8 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-3">
-            {/* Recent Members */}
+            {/* Recent Members (hidden for business_members) */}
+            {role !== "business_members" ? (
             <Card className="p-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Membres récents</h3>
@@ -146,6 +155,7 @@ export default function DashboardPage() {
                 </div>
               )}
             </Card>
+            ) : null}
 
             {/* Recent Campaigns */}
             <Card className="p-4">
@@ -219,46 +229,60 @@ export default function DashboardPage() {
                 </div>
               )}
             </Card>
+            {/* Super Admin: Business quick access */}
+            {role === "super_admin" ? (
+              <Card className="p-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">Business</h3>
+                  <a href="/business" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+                    <ArrowUpRight className="size-4" />
+                  </a>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">Voir toutes les entreprises inscrites.</p>
+              </Card>
+            ) : null}
           </div>
 
-          <div className="grid gap-6">
-            {/* Statuses */}
-            <Card className="p-4">
-              <h3 className="text-sm font-semibold">Statuts</h3>
-              <div className="mt-3 grid gap-6">
-                <div>
-                  <h4 className="text-xs font-semibold text-muted-foreground">Dernières connexions</h4>
-                  {lastSignins.length === 0 ? (
-                    <p className="text-sm text-muted-foreground mt-2">Aucune connexion récente.</p>
-                  ) : (
-                    <div className="mt-2 grid gap-2">
-                      {lastSignins.map((s) => (
-                        <div key={`ls-${s.id}-${s.last_sign_in_at}`} className="flex items-center justify-between rounded-md border p-2">
-                          <span className="truncate text-sm">{s.email || s.id}</span>
-                          <span className="text-xs text-muted-foreground">{s.last_sign_in_at ? new Date(s.last_sign_in_at).toLocaleString() : ""}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+          {role === "business_members" ? null : (
+            <div className="grid gap-6">
+              {/* Statuses */}
+              <Card className="p-4">
+                <h3 className="text-sm font-semibold">Statuts</h3>
+                <div className="mt-3 grid gap-6">
+                  <div>
+                    <h4 className="text-xs font-semibold text-muted-foreground">Dernières connexions</h4>
+                    {lastSignins.length === 0 ? (
+                      <p className="text-sm text-muted-foreground mt-2">Aucune connexion récente.</p>
+                    ) : (
+                      <div className="mt-2 grid gap-2">
+                        {lastSignins.map((s) => (
+                          <div key={`ls-${s.id}-${s.last_sign_in_at}`} className="flex items-center justify-between rounded-md border p-2">
+                            <span className="truncate text-sm">{s.email || s.id}</span>
+                            <span className="text-xs text-muted-foreground">{s.last_sign_in_at ? new Date(s.last_sign_in_at).toLocaleString() : ""}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-semibold text-muted-foreground">Dernières opérations</h4>
+                    {operations.length === 0 ? (
+                      <p className="text-sm text-muted-foreground mt-2">Aucune opération récente.</p>
+                    ) : (
+                      <div className="mt-2 grid gap-2">
+                        {operations.map((op, idx) => (
+                          <div key={`op-${idx}-${op.at}`} className="flex items-center justify-between rounded-md border p-2">
+                            <span className="truncate text-sm">{op.title}</span>
+                            <span className="text-xs text-muted-foreground">{new Date(op.at).toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-xs font-semibold text-muted-foreground">Dernières opérations</h4>
-                  {operations.length === 0 ? (
-                    <p className="text-sm text-muted-foreground mt-2">Aucune opération récente.</p>
-                  ) : (
-                    <div className="mt-2 grid gap-2">
-                      {operations.map((op, idx) => (
-                        <div key={`op-${idx}-${op.at}`} className="flex items-center justify-between rounded-md border p-2">
-                          <span className="truncate text-sm">{op.title}</span>
-                          <span className="text-xs text-muted-foreground">{new Date(op.at).toLocaleString()}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
-          </div>
+              </Card>
+            </div>
+          )}
         </div>
       )}
     </DashboardShell>
