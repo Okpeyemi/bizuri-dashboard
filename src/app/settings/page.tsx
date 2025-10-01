@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { supabaseClient } from "@/lib/supabase/client"
 import { DashboardShell } from "@/components/dashboard-shell"
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
-export default function SettingsPage() {
+function SettingsContent() {
   const [timezone, setTimezone] = useState<string | "">("")
   const [language, setLanguage] = useState<string | "">("")
   const [notifications, setNotifications] = useState<boolean>(true)
@@ -22,11 +22,13 @@ export default function SettingsPage() {
   const [plan, setPlan] = useState<"freemium" | "premium" | "vip">("freemium")
   const [limits, setLimits] = useState<{ maxClients: number | null; maxCampaignsPerMonth: number | null; maxMembers: number | null } | null>(null)
   const [usage, setUsage] = useState<{ clients: number; members: number; campaigns_month: number } | null>(null)
+
   const [savingPlan, setSavingPlan] = useState(false)
   const [companyLogoUrl, setCompanyLogoUrl] = useState("")
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const fileRef = useRef<HTMLInputElement | null>(null)
 
+  // useSearchParams must be inside a Suspense boundary
   const searchParams = useSearchParams()
   const defaultTab = (searchParams.get("tab") as "general" | "subscription" | "company" | null) || "general"
 
@@ -47,7 +49,7 @@ export default function SettingsPage() {
         setLanguage((json.data?.language as string) || "")
         setNotifications((json.data?.notifications_enabled as boolean) ?? true)
 
-        // Load role and company logo from auth metadata, and subscription info
+        // Load role, logo, and subscription
         const { data: user } = await supabaseClient.auth.getUser()
         const meta = user.user?.user_metadata as Record<string, unknown> | undefined
         const r = meta && typeof meta["role"] === "string" ? (meta["role"] as string) : undefined
@@ -223,8 +225,8 @@ export default function SettingsPage() {
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={companyLogoUrl} alt="Company logo" className="h-12 w-12 rounded object-cover" />
                       ) : (
-                        <div className="bg-muted h-12 w-12 rounded" />)
-                      }
+                        <div className="bg-muted h-12 w-12 rounded" />
+                      )}
                       <div className="flex items-center gap-2">
                         <input
                           ref={fileRef}
@@ -250,5 +252,13 @@ export default function SettingsPage() {
         )}
       </Card>
     </DashboardShell>
+  )
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Loading settings...</div>}>
+      <SettingsContent />
+    </Suspense>
   )
 }
