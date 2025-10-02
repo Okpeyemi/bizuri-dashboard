@@ -194,7 +194,7 @@ export default function MembresPage() {
         ) : items.length === 0 ? (
           <p className="text-sm text-muted-foreground">Aucun membre.</p>
         ) : (
-          <div className="grid gap-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {items.map((m) => (
               <Card key={m.user_id} className="p-4">
                 <div className="flex items-center justify-between">
