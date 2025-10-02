@@ -175,14 +175,6 @@ export default function AccountPage() {
               <Label htmlFor="company_name">Nom de la compagnie</Label>
               <Input id="company_name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="company_logo_url">Logo de la compagnie (URL)</Label>
-              <Input id="company_logo_url" value={companyLogoUrl} onChange={(e) => setCompanyLogoUrl(e.target.value)} placeholder="https://.../logo.png" />
-              {companyLogoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={companyLogoUrl} alt="Company logo" className="mt-2 h-12 w-12 rounded object-cover" />
-              ) : null}
-            </div>
             <div className="flex items-center gap-2">
               <Button onClick={save} disabled={saving}>{saving ? "Enregistrement..." : "Enregistrer"}</Button>
               {success ? <span className="text-green-600 text-sm">{success}</span> : null}

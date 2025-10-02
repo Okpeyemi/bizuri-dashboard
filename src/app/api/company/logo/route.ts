@@ -5,6 +5,56 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 export const runtime = "nodejs"
 
+export async function GET(req: Request) {
+  try {
+    const auth = req.headers.get("authorization") || req.headers.get("Authorization")
+    if (!auth?.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Missing bearer token" }, { status: 401 })
+    }
+    const token = auth.slice("Bearer ".length)
+
+    const supa = getSupabaseForToken(token)
+    const { data: userRes, error: userErr } = await supa.auth.getUser()
+    if (userErr || !userRes.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const admin = getSupabaseAdmin()
+
+    // Find company_id for the requesting user
+    const { data: me, error: meErr } = await admin
+      .from("profiles")
+      .select("company_id")
+      .eq("user_id", userRes.user.id)
+      .single()
+    if (meErr || !me) return NextResponse.json({ error: "Profile not found" }, { status: 400 })
+
+    // Get all user_ids in the same company
+    const { data: members, error: memErr } = await admin
+      .from("profiles")
+      .select("user_id")
+      .eq("company_id", me.company_id)
+    if (memErr) return NextResponse.json({ error: memErr.message }, { status: 400 })
+
+    // Look for first user that has company_logo_url in metadata
+    for (const m of members || []) {
+      try {
+        const u = await admin.auth.admin.getUserById(m.user_id)
+        const meta = (u.data.user?.user_metadata || {}) as Record<string, unknown>
+        const url = typeof meta["company_logo_url"] === "string" ? (meta["company_logo_url"] as string) : ""
+        if (url) {
+          return NextResponse.json({ company_logo_url: url })
+        }
+      } catch {}
+    }
+
+    return NextResponse.json({ company_logo_url: null })
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "Server error"
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const auth = req.headers.get("authorization") || req.headers.get("Authorization")

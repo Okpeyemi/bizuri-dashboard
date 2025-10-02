@@ -78,6 +78,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             const accJson = await accRes.json()
             if (accRes.ok) {
               memberStatus = accJson?.profile?.member_status || null
+              // Prefer canonical company name from DB
+              if (accJson?.company?.name) {
+                setCompany((prev) => ({ ...prev, name: accJson.company.name }))
+              }
+            }
+          } catch {}
+
+          // shared company logo (if any member uploaded it)
+          try {
+            const logoRes = await fetch("/api/company/logo", { headers: { Authorization: `Bearer ${token}` } })
+            const logoJson = await logoRes.json()
+            if (logoRes.ok && logoJson?.company_logo_url) {
+              setCompany((prev) => ({ ...prev, logoUrl: logoJson.company_logo_url }))
             }
           } catch {}
 
