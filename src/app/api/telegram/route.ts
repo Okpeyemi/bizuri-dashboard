@@ -10,9 +10,9 @@ export async function GET(req: Request) {
     if (!auth?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Missing bearer token" }, { status: 401 })
     }
-    const token = auth.slice("Bearer ".length)
+    const accessToken = auth.slice("Bearer ".length)
 
-    const supa = getSupabaseForToken(token)
+    const supa = getSupabaseForToken(accessToken)
     const { data: userRes, error: userErr } = await supa.auth.getUser()
     if (userErr || !userRes.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -41,7 +41,23 @@ export async function GET(req: Request) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
-    return NextResponse.json({ data })
+
+    let bot_name: string | null = null
+    let bot_username: string | null = null
+    let deep_link: string | null = null
+    const botToken = data?.bot_token
+    if (botToken) {
+      try {
+        const r = await fetch(`https://api.telegram.org/bot${botToken}/getMe`)
+        const j = await r.json().catch(() => ({}))
+        if (j?.ok && j?.result) {
+          bot_name = j.result.first_name || j.result.name || null
+          bot_username = j.result.username || null
+          deep_link = bot_username ? `https://t.me/${bot_username}` : null
+        }
+      } catch {}
+    }
+    return NextResponse.json({ data: { ...data, bot_name, bot_username, deep_link } })
   } catch (e: unknown) {
     return NextResponse.json({ error: e instanceof Error ? e.message : "Server error" }, { status: 500 })
   }

@@ -126,7 +126,7 @@ export default function AccountPage() {
 
   return (
     <DashboardShell title="Account">
-      <Card className="max-w-2xl p-4">
+      <Card className="w-3xl mx-auto p-4">
         {loading ? (
           <Loader />
         ) : (

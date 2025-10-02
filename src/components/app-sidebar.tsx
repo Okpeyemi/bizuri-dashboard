@@ -70,7 +70,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       try {
         const { data: session } = await supabaseClient.auth.getSession()
         const token = session.session?.access_token
+        let memberStatus: string | null = null
         if (token) {
+          // load member_status for precise gating
+          try {
+            const accRes = await fetch("/api/account", { headers: { Authorization: `Bearer ${token}` } })
+            const accJson = await accRes.json()
+            if (accRes.ok) {
+              memberStatus = accJson?.profile?.member_status || null
+            }
+          } catch {}
+
           const res = await fetch("/api/subscription", { headers: { Authorization: `Bearer ${token}` } })
           const json = await res.json()
           if (res.ok) {
@@ -86,9 +96,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       // role-based nav
       let items = [...baseNav]
-      if (r === "business_members") {
-        items = items.filter((i) => i.url !== "/membres")
-      }
+      try {
+        const { data: session } = await supabaseClient.auth.getSession()
+        const token = session.session?.access_token
+        let memberStatus: string | null = null
+        if (token) {
+          const accRes = await fetch("/api/account", { headers: { Authorization: `Bearer ${token}` } })
+          const accJson = await accRes.json()
+          if (accRes.ok) memberStatus = accJson?.profile?.member_status || null
+        }
+        if (r === "business_members" && memberStatus === "agent") {
+          items = items.filter((i) => i.url !== "/membres")
+        }
+      } catch {}
       if (r === "super_admin") {
         // Add Business and Logs pages
         const hasBusiness = items.some((i) => i.url === "/business")

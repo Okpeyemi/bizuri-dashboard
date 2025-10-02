@@ -17,6 +17,9 @@ export default function TelegramBotPage() {
   const [success, setSuccess] = useState<string | null>(null)
   const [startMessage, setStartMessage] = useState("")
   const [stopMessage, setStopMessage] = useState("")
+  const [botName, setBotName] = useState<string | null>(null)
+  const [botUsername, setBotUsername] = useState<string | null>(null)
+  const [deepLink, setDeepLink] = useState<string | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -33,6 +36,9 @@ export default function TelegramBotPage() {
         setBotToken(json.data?.bot_token || "")
         setStartMessage(json.data?.start_message || "")
         setStopMessage(json.data?.stop_message || "")
+        setBotName(json.data?.bot_name || null)
+        setBotUsername(json.data?.bot_username || null)
+        setDeepLink(json.data?.deep_link || null)
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Failed to load bot settings")
       } finally {
@@ -68,6 +74,23 @@ export default function TelegramBotPage() {
     }
   }
 
+  async function handleDownloadQr() {
+    try {
+      if (!deepLink) return
+      const url = `https://api.qrserver.com/v1/create-qr-code/?size=1024x1024&data=${encodeURIComponent(deepLink)}`
+      const res = await fetch(url)
+      const blob = await res.blob()
+      const a = document.createElement("a")
+      const objUrl = URL.createObjectURL(blob)
+      a.href = objUrl
+      a.download = `telegram-${botUsername || "bot"}-qr.png`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(objUrl)
+    } catch {}
+  }
+
   return (
     <DashboardShell title="Telegram Bot">
       <div className="grid gap-6 lg:grid-cols-2">
@@ -84,6 +107,33 @@ export default function TelegramBotPage() {
             </a>
           </div>
           <div className="mt-4 grid gap-3">
+            {botName || botUsername ? (
+              <div className="rounded-md border p-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">{botName || "—"}</div>
+                    <div className="text-xs text-muted-foreground">{botUsername ? `@${botUsername}` : ""}</div>
+                  </div>
+                  {deepLink ? (
+                    <a href={deepLink} target="_blank" rel="noreferrer" className="text-xs underline">
+                      Ouvrir le bot
+                    </a>
+                  ) : null}
+                </div>
+                {deepLink ? (
+                  <div className="mt-3 flex items-center gap-3">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(deepLink)}`}
+                      alt="QR code"
+                      className="h-24 w-24 rounded bg-white p-1"
+                    />
+                    <Button type="button" onClick={handleDownloadQr}>
+                      Télécharger le QR
+                    </Button>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
             <Label htmlFor="bot-token">Token</Label>
             <div className="flex items-center gap-2">
               <Input

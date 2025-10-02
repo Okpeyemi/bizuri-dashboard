@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Loader } from "@/components/ui/loader"
 
 function SettingsContent() {
   const [timezone, setTimezone] = useState<string | "">("")
@@ -19,6 +20,7 @@ function SettingsContent() {
   const [success, setSuccess] = useState<string | null>(null)
 
   const [role, setRole] = useState<string | null>(null)
+  const [memberStatus, setMemberStatus] = useState<"agent" | "manager" | null>(null)
   const [plan, setPlan] = useState<"freemium" | "premium" | "vip">("freemium")
   const [limits, setLimits] = useState<{ maxClients: number | null; maxCampaignsPerMonth: number | null; maxMembers: number | null } | null>(null)
   const [usage, setUsage] = useState<{ clients: number; members: number; campaigns_month: number } | null>(null)
@@ -56,6 +58,12 @@ function SettingsContent() {
         const cl = meta && typeof meta["company_logo_url"] === "string" ? (meta["company_logo_url"] as string) : undefined
         setRole(r || null)
         setCompanyLogoUrl(cl || "")
+        // precise member_status from API
+        try {
+          const accRes = await fetch("/api/account", { headers: { Authorization: `Bearer ${token}` } })
+          const accJson = await accRes.json()
+          if (accRes.ok) setMemberStatus((accJson?.profile?.member_status as "agent" | "manager" | null) || null)
+        } catch {}
         const resSub = await fetch("/api/subscription", { headers: { Authorization: `Bearer ${token}` } })
         const jsonSub = await resSub.json()
         if (resSub.ok) {
@@ -145,9 +153,9 @@ function SettingsContent() {
 
   return (
     <DashboardShell title="Settings">
-      <Card className="max-w-3xl p-4">
+      <Card className="w-3xl mx-auto p-4">
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <Loader />
         ) : (
           <div className="grid gap-4">
             <Tabs defaultValue={defaultTab}>
@@ -239,9 +247,17 @@ function SettingsContent() {
                             if (fileRef.current) fileRef.current.value = ""
                           }}
                         />
-                        <Button type="button" variant="outline" disabled={uploadingLogo} onClick={() => fileRef.current?.click()}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={uploadingLogo || (role === "business_members" && memberStatus === "agent")}
+                          onClick={() => fileRef.current?.click()}
+                        >
                           {uploadingLogo ? "Chargement..." : "Changer le logo"}
                         </Button>
+                        {role === "business_members" && memberStatus === "agent" ? (
+                          <span className="text-xs text-muted-foreground">Seul l’administrateur peut changer le logo.</span>
+                        ) : null}
                       </div>
                     </div>
                   </div>

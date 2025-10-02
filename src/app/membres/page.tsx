@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Loader } from "@/components/ui/loader"
+import { Switch } from "@/components/ui/switch"
 
  type Member = {
   user_id: string
@@ -23,6 +24,7 @@ export default function MembresPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [role, setRole] = useState<string | null>(null)
+  const [memberStatus, setMemberStatus] = useState<"agent" | "manager" | null>(null)
 
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState<"agent" | "manager">("agent")
@@ -46,7 +48,15 @@ export default function MembresPage() {
         const meta = user.user?.user_metadata as Record<string, unknown> | undefined
         const r = meta && typeof meta["role"] === "string" ? (meta["role"] as string) : undefined
         setRole(r || null)
-        if (r === "business_members") {
+        // precise member_status from API for gating
+        let ms: "agent" | "manager" | null = null
+        try {
+          const accRes = await fetch("/api/account", { headers: { Authorization: `Bearer ${token}` } })
+          const accJson = await accRes.json()
+          if (accRes.ok) ms = (accJson?.profile?.member_status as "agent" | "manager" | null) || null
+          setMemberStatus(ms)
+        } catch {}
+        if (r === "business_members" && ms === "agent") {
           setItems([])
           return
         }
@@ -128,7 +138,7 @@ export default function MembresPage() {
 
   return (
     <DashboardShell title="Membres">
-      {role === "business_members" ? (
+      {role === "business_members" && memberStatus === "agent" ? (
         <p className="text-sm text-muted-foreground">Accès interdit.</p>
       ) : (
         <div className="mb-4 flex items-center justify-end gap-2">
@@ -177,7 +187,7 @@ export default function MembresPage() {
           ) : null}
         </div>
       )}
-      {role === "business_members" ? null : (
+      {role === "business_members" && memberStatus === "agent" ? null : (
       <div>
         {loading ? (
           <Loader />
@@ -197,21 +207,22 @@ export default function MembresPage() {
                     </div>
                     <div className="text-xs text-muted-foreground">{m.role} · {m.member_status}</div>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span>{new Date(m.created_at).toLocaleDateString()}</span>
-                    {role !== "business_members" ? (
-                      <button
-                        className="text-primary underline"
-                        onClick={() => {
-                          if (!m.disabled) {
-                            const ok = window.confirm("Désactiver ce membre ? Il ne pourra plus se connecter.")
-                            if (!ok) return
-                          }
-                          toggleAccess(m.user_id, m.disabled)
-                        }}
-                      >
-                        {m.disabled ? "Activer" : "Désactiver"}
-                      </button>
+                    {role && !(role === "business_members" && memberStatus === "agent") ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px]">Actif</span>
+                        <Switch
+                          checked={!m.disabled}
+                          onCheckedChange={(v) => {
+                            if (!v) {
+                              const ok = window.confirm("Désactiver ce membre ? Il ne pourra plus se connecter.")
+                              if (!ok) return
+                            }
+                            toggleAccess(m.user_id, m.disabled)
+                          }}
+                        />
+                      </div>
                     ) : null}
                   </div>
                 </div>
