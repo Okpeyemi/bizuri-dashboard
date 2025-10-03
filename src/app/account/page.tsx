@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Loader } from "@/components/ui/loader"
+import { useTranslations } from "next-intl"
 
 export default function AccountPage() {
+  const t = useTranslations("Account")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -72,7 +74,7 @@ export default function AccountPage() {
       const json = await res.json()
       if (!res.ok) throw new Error(json?.error || "Upload failed")
       setAvatarUrl(json.avatar_url || "")
-      setSuccess("Avatar mis à jour")
+      setSuccess(t("profileUpdated"))
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Upload failed")
     } finally {
@@ -84,20 +86,20 @@ export default function AccountPage() {
     try {
       setPwdMsg(null)
       if (newPassword.length < 8) {
-        setPwdMsg("Le mot de passe doit contenir au moins 8 caractères")
+        setPwdMsg(t("passwordAtLeast8"))
         return
       }
       if (newPassword !== confirmPassword) {
-        setPwdMsg("Les mots de passe ne correspondent pas")
+        setPwdMsg(t("passwordsMismatch"))
         return
       }
       const { error } = await supabaseClient.auth.updateUser({ password: newPassword })
       if (error) throw error
-      setPwdMsg("Mot de passe mis à jour")
+      setPwdMsg(t("passwordUpdated"))
       setNewPassword("")
       setConfirmPassword("")
     } catch (e: unknown) {
-      setPwdMsg(e instanceof Error ? e.message : "Echec de la mise à jour du mot de passe")
+      setPwdMsg(e instanceof Error ? e.message : t("passwordUpdateFailed"))
     }
   }
 
@@ -116,7 +118,7 @@ export default function AccountPage() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json?.error || "Save failed")
-      setSuccess("Profil mis à jour")
+      setSuccess(t("profileUpdated"))
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Save failed")
     } finally {
@@ -125,18 +127,18 @@ export default function AccountPage() {
   }
 
   return (
-    <DashboardShell title="Account">
+    <DashboardShell title={t("title")}>
       <Card className="w-3xl mx-auto p-4">
         {loading ? (
           <Loader />
         ) : (
           <div className="grid gap-4">
             <div className="grid gap-2">
-              <Label>Avatar</Label>
+              <Label>{t("avatar")}</Label>
               <div className="flex items-center gap-4">
                 {avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt="Avatar" className="h-12 w-12 rounded-full object-cover" />
+                  <img src={avatarUrl} alt={t("avatar")} className="h-12 w-12 rounded-full object-cover" />
                 ) : (
                   <div className="bg-muted h-12 w-12 rounded-full" />
                 )}
@@ -158,52 +160,52 @@ export default function AccountPage() {
                     disabled={uploading}
                     onClick={() => fileRef.current?.click()}
                   >
-                    {uploading ? "Chargement..." : "Changer l'avatar"}
+                    {uploading ? t("loading") : t("changeAvatar")}
                   </Button>
                 </div>
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("email")}</Label>
               <Input id="email" value={email} readOnly disabled />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="full_name">Nom complet</Label>
+              <Label htmlFor="full_name">{t("fullName")}</Label>
               <Input id="full_name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="company_name">Nom de la compagnie</Label>
+              <Label htmlFor="company_name">{t("companyName")}</Label>
               <Input id="company_name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
             </div>
             <div className="flex items-center gap-2">
-              <Button onClick={save} disabled={saving}>{saving ? "Enregistrement..." : "Enregistrer"}</Button>
+              <Button onClick={save} disabled={saving}>{saving ? t("saving") : t("save")}</Button>
               {success ? <span className="text-green-600 text-sm">{success}</span> : null}
               {error ? <span className="text-destructive text-sm">{error}</span> : null}
             </div>
 
             <div className="border-t pt-4">
-              <h3 className="text-sm font-semibold">Modifier le mot de passe</h3>
+              <h3 className="text-sm font-semibold">{t("changePassword")}</h3>
               <div className="mt-3 grid gap-3">
                 <div className="grid gap-2">
-                  <Label htmlFor="new_password">Nouveau mot de passe</Label>
+                  <Label htmlFor="new_password">{t("newPassword")}</Label>
                   <div className="flex items-center gap-2">
                     <Input id="new_password" type={showPw ? "text" : "password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
                     <Button type="button" variant="outline" onClick={() => setShowPw((s) => !s)}>
-                      {showPw ? "Masquer" : "Afficher"}
+                      {showPw ? t("hide") : t("show")}
                     </Button>
                   </div>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="confirm_password">Confirmer le mot de passe</Label>
+                  <Label htmlFor="confirm_password">{t("confirmPassword")}</Label>
                   <div className="flex items-center gap-2">
                     <Input id="confirm_password" type={showConfirm ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                     <Button type="button" variant="outline" onClick={() => setShowConfirm((s) => !s)}>
-                      {showConfirm ? "Masquer" : "Afficher"}
+                      {showConfirm ? t("hide") : t("show")}
                     </Button>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button type="button" onClick={changePassword}>Modifier le mot de passe</Button>
+                  <Button type="button" onClick={changePassword}>{t("changePasswordButton")}</Button>
                   {pwdMsg ? <span className="text-xs text-muted-foreground">{pwdMsg}</span> : null}
                 </div>
               </div>

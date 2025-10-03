@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import Image from "next/image"
 import { Loader } from "@/components/ui/loader"
+import { useTranslations } from "next-intl"
 
 type Campaign = {
   id: string
@@ -36,6 +37,7 @@ type CreateCampaignPayload = {
 }
 
 export default function CampagnesPage() {
+  const t = useTranslations("Campagnes")
   const [items, setItems] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -177,27 +179,27 @@ export default function CampagnesPage() {
   }
 
   return (
-    <DashboardShell title="Campagnes">
+    <DashboardShell title={t("title")}>
       <div className="mb-4 flex items-center justify-end">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <Button disabled={atCampaignLimit || botNotConfigured}>Créer une campagne</Button>
+            <Button disabled={atCampaignLimit || botNotConfigured}>{t("create")}</Button>
           </SheetTrigger>
           <SheetContent>
             <SheetHeader>
-              <SheetTitle>Créer une campagne</SheetTitle>
+              <SheetTitle>{t("createTitle")}</SheetTitle>
             </SheetHeader>
             <form onSubmit={createCampaign} className="p-4 grid gap-3">
               <div className="grid gap-2">
-                <Label htmlFor="name">Nom</Label>
+                <Label htmlFor="name">{t("name")}</Label>
                 <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t("description")}</Label>
                 <Input id="description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               </div>
               <div className="grid gap-2">
-                <Label>Statut</Label>
+                <Label>{t("status")}</Label>
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={form.status === "published"}
@@ -207,44 +209,44 @@ export default function CampagnesPage() {
                 </div>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="image">Image</Label>
+                <Label htmlFor="image">{t("image")}</Label>
                 <Input id="image" type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="grid gap-2">
-                  <Label htmlFor="starts_at">Début</Label>
+                  <Label htmlFor="starts_at">{t("start")}</Label>
                   <Input id="starts_at" type="date" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="ends_at">Fin</Label>
+                  <Label htmlFor="ends_at">{t("end")}</Label>
                   <Input id="ends_at" type="date" value={form.ends_at} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="grid gap-2">
-                  <Label htmlFor="promotion_type">Type de promotion</Label>
+                  <Label htmlFor="promotion_type">{t("promotionType")}</Label>
                   <select
                     id="promotion_type"
                     className="h-9 rounded-md border bg-background px-3 text-sm"
                     value={form.promotion_type}
                     onChange={(e) => setForm({ ...form, promotion_type: e.target.value as "percentage" | "amount" })}
                   >
-                    <option value="percentage">Pourcentage</option>
-                    <option value="amount">Montant</option>
+                    <option value="percentage">{t("percentage")}</option>
+                    <option value="amount">{t("amount")}</option>
                   </select>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="promotion_value">Valeur</Label>
+                  <Label htmlFor="promotion_value">{t("value")}</Label>
                   <Input id="promotion_value" type="number" value={form.promotion_value} onChange={(e) => setForm({ ...form, promotion_value: e.target.value })} />
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button type="submit" disabled={saving || atCampaignLimit || botNotConfigured}>{saving ? "Création..." : "Créer"}</Button>
+                <Button type="submit" disabled={saving || atCampaignLimit || botNotConfigured}>{saving ? t("submitCreating") : t("submitCreate")}</Button>
                 {atCampaignLimit ? (
-                  <a href="/settings?tab=subscription" className="text-xs text-primary underline">Mettre à niveau le plan</a>
+                  <a href="/settings?tab=subscription" className="text-xs text-primary underline">{t("upgradePlan")}</a>
                 ) : null}
                 {botNotConfigured ? (
-                  <a href="/telegram-bot" className="text-xs text-primary underline">Configurer le bot d’abord</a>
+                  <a href="/telegram-bot" className="text-xs text-primary underline">{t("configureBotFirst")}</a>
                 ) : null}
               </div>
             </form>
@@ -257,7 +259,7 @@ export default function CampagnesPage() {
       ) : error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Aucune campagne.</p>
+        <p className="text-sm text-muted-foreground">{t("empty")}</p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {items.map((c) => (
@@ -287,13 +289,13 @@ export default function CampagnesPage() {
               <p className="text-muted-foreground mt-3 text-sm">{c.description}</p>
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
                 <div>
-                  <span className="font-medium">Début:</span> {c.starts_at ? new Date(c.starts_at).toLocaleDateString() : "-"}
+                  <span className="font-medium">{t("startLabel")}</span> {c.starts_at ? new Date(c.starts_at).toLocaleDateString() : "-"}
                 </div>
                 <div>
-                  <span className="font-medium">Fin:</span> {c.ends_at ? new Date(c.ends_at).toLocaleDateString() : "-"}
+                  <span className="font-medium">{t("endLabel")}</span> {c.ends_at ? new Date(c.ends_at).toLocaleDateString() : "-"}
                 </div>
                 <div className="col-span-2">
-                  <span className="font-medium">Promotion:</span> {c.promotion_type || "-"}
+                  <span className="font-medium">{t("promotionLabel")}</span> {c.promotion_type || "-"}
                   {c.promotion_value != null ? ` (${c.promotion_value})` : ""}
                 </div>
               </div>

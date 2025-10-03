@@ -1,0 +1,232 @@
+{
+  "LocaleSwitcher": {
+    "label": "Changer de langue",
+    "en": "Anglais",
+    "fr": "Français"
+  },
+  "Common": {
+    "overview": "Aperçu",
+    "organization": "Organisation"
+  },
+  "Nav": {
+    "platform": "Plateforme"
+  },
+  "Sidebar": {
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "campagnes": "Campagnes",
+      "clients": "Clients",
+      "membres": "Membres",
+      "settings": "Paramètres",
+      "telegram_bot": "Bot Telegram",
+      "business": "Entreprises",
+      "logs": "Journaux"
+    },
+    "plan": {
+      "label": "Plan",
+      "membersRemaining": "Membres restants",
+      "campaignsRemaining": "Campagnes restantes",
+      "upgrade": "Mettre à niveau"
+    },
+    "defaults": {
+      "user": "Utilisateur",
+      "company": "Entreprise"
+    }
+  },
+  "Dashboard": {
+    "kpi": {
+      "campaigns": "Campagnes",
+      "published": "Publiées",
+      "telegramSubscribers": "Abonnés Telegram",
+      "members": "Membres"
+    },
+    "recentMembers": "Membres récents",
+    "viewMembers": "Voir les membres",
+    "noRecentMembers": "Aucun membre récemment.",
+    "latestCampaigns": "Dernières campagnes",
+    "viewAllCampaigns": "Voir toutes les campagnes",
+    "noCampaigns": "Aucune campagne.",
+    "latestTelegramSubscribers": "Nouveaux abonnés Telegram",
+    "viewAllSubscribers": "Voir tous les abonnés Telegram",
+    "noRecentSubscribers": "Aucun abonné récemment.",
+    "business": "Business",
+    "seeAllCompanies": "Voir toutes les entreprises inscrites.",
+    "statuses": "Statuts",
+    "lastSignins": "Dernières connexions",
+    "noRecentSignins": "Aucune connexion récente.",
+    "lastOperations": "Dernières opérations",
+    "noRecentOperations": "Aucune opération récente."
+  },
+  "Home": {
+    "redirecting": "Redirection..."
+  },
+  "Auth": {
+    "Login": {
+      "title": "Connectez-vous à votre compte",
+      "subtitle": "Entrez votre e-mail ci-dessous pour vous connecter",
+      "email": "Email",
+      "password": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "hidePassword": "Masquer le mot de passe",
+      "showPassword": "Afficher le mot de passe",
+      "submitLoading": "Connexion...",
+      "submit": "Se connecter",
+      "errorEmpty": "Veuillez entrer votre e-mail et votre mot de passe",
+      "errorGeneric": "Impossible de se connecter",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "signup": "S'inscrire"
+    },
+    "Register": {
+      "title": "Créez votre compte",
+      "subtitle": "Entrez vos informations ci-dessous pour créer votre compte",
+      "fullName": "Nom complet",
+      "businessEmail": "Email professionnel",
+      "companyName": "Nom de l'entreprise",
+      "companyLogo": "Logo de l'entreprise (optionnel)",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "role": "Rôle",
+      "roleOptions": {
+        "super_admin": "Super Admin",
+        "business_admin": "Administrateur d'entreprise",
+        "business_members": "Membre d'entreprise"
+      },
+      "hidePassword": "Masquer le mot de passe",
+      "showPassword": "Afficher le mot de passe",
+      "creating": "Création du compte...",
+      "signup": "S'inscrire",
+      "alreadyHave": "Vous avez déjà un compte ?",
+      "login": "Se connecter",
+      "logoPreviewAlt": "Aperçu du logo",
+      "errorPasswordsMismatch": "Les mots de passe ne correspondent pas",
+      "errorRequired": "Veuillez remplir tous les champs obligatoires",
+      "errorGeneric": "Une erreur est survenue",
+      "successCreated": "Compte créé. Vous pouvez maintenant vous connecter.",
+      "errorRegistrationFailed": "Échec de l'inscription"
+    }
+  },
+  "UserMenu": {
+    "account": "Compte",
+    "logout": "Se déconnecter"
+  },
+  "Clients": {
+    "title": "Clients",
+    "telegramSubscribers": "Abonnés Telegram",
+    "noTelegram": "Aucun abonné Telegram."
+  },
+  "Campagnes": {
+    "title": "Campagnes",
+    "create": "Créer une campagne",
+    "createTitle": "Créer une campagne",
+    "name": "Nom",
+    "description": "Description",
+    "status": "Statut",
+    "image": "Image",
+    "start": "Début",
+    "end": "Fin",
+    "promotionType": "Type de promotion",
+    "percentage": "Pourcentage",
+    "amount": "Montant",
+    "value": "Valeur",
+    "submitCreating": "Création...",
+    "submitCreate": "Créer",
+    "upgradePlan": "Mettre à niveau le plan",
+    "configureBotFirst": "Configurer le bot d’abord",
+    "empty": "Aucune campagne.",
+    "startLabel": "Début:",
+    "endLabel": "Fin:",
+    "promotionLabel": "Promotion:"
+  },
+  "Members": {
+    "title": "Membres",
+    "accessDenied": "Accès interdit.",
+    "addMember": "Ajouter un membre",
+    "addMemberTitle": "Ajouter un membre",
+    "email": "Email",
+    "password": "Mot de passe",
+    "status": "Statut",
+    "agent": "Agent",
+    "manager": "Manager",
+    "submitAdding": "Ajout...",
+    "submitAdd": "Ajouter",
+    "upgradePlan": "Mettre à niveau le plan",
+    "addedSuccess": "Membre ajouté avec succès",
+    "empty": "Aucun membre.",
+    "disabled": "Désactivé",
+    "active": "Actif",
+    "disableConfirm": "Désactiver ce membre ? Il ne pourra plus se connecter."
+  },
+  "Settings": {
+    "title": "Paramètres",
+    "tabs": {
+      "general": "Général",
+      "subscription": "Abonnement",
+      "company": "Entreprise"
+    },
+    "timezone": "Fuseau horaire",
+    "language": "Langue",
+    "notifications": "Notifications",
+    "saving": "Enregistrement...",
+    "save": "Enregistrer",
+    "saved": "Paramètres enregistrés",
+    "planSaved": "Plan enregistré",
+    "subscriptionPlan": "Plan d'abonnement",
+    "savePlan": "Enregistrer le plan",
+    "onlyAdmin": "Seul l’administrateur peut modifier le plan.",
+    "companyLogo": "Logo de l’entreprise",
+    "loading": "Chargement...",
+    "changeLogo": "Changer le logo"
+  },
+  "Business": {
+    "title": "Business (Super Admin)",
+    "accessDenied": "Accès interdit.",
+    "empty": "Aucune entreprise."
+  },
+  "Logs": {
+    "title": "Journaux (Super Admin)",
+    "accessDenied": "Accès interdit.",
+    "campaigns": "Campagnes",
+    "noRecentCampaigns": "Aucune campagne récente.",
+    "members": "Membres",
+    "noRecentMembers": "Aucun membre récent.",
+    "telegramSubscribers": "Abonnés Telegram",
+    "noRecentSubscribers": "Aucun abonné récent."
+  },
+  "Account": {
+    "title": "Compte",
+    "avatar": "Avatar",
+    "loading": "Chargement...",
+    "changeAvatar": "Changer l'avatar",
+    "email": "Email",
+    "fullName": "Nom complet",
+    "companyName": "Nom de la compagnie",
+    "saving": "Enregistrement...",
+    "save": "Enregistrer",
+    "profileUpdated": "Profil mis à jour",
+    "changePassword": "Modifier le mot de passe",
+    "newPassword": "Nouveau mot de passe",
+    "hide": "Masquer",
+    "show": "Afficher",
+    "confirmPassword": "Confirmer le mot de passe",
+    "changePasswordButton": "Modifier le mot de passe",
+    "passwordAtLeast8": "Le mot de passe doit contenir au moins 8 caractères",
+    "passwordsMismatch": "Les mots de passe ne correspondent pas",
+    "passwordUpdated": "Mot de passe mis à jour",
+    "passwordUpdateFailed": "Echec de la mise à jour du mot de passe"
+  },
+  "Telegram": {
+    "title": "Bot Telegram",
+    "configureBot": "Configurer le bot",
+    "openBotFather": "Ouvrir BotFather",
+    "openBot": "Ouvrir le bot",
+    "downloadQr": "Télécharger le QR",
+    "startMessage": "Message /start",
+    "startPlaceholder": "Bienvenue! Vous recevrez les campagnes publiées ici.",
+    "stopMessage": "Message /stop",
+    "stopPlaceholder": "Vous ne recevrez plus de notifications. Tapez /start pour reprendre.",
+    "saving": "Enregistrement...",
+    "save": "Enregistrer",
+    "commands": "Commandes",
+    "saved": "Paramètres enregistrés"
+  }
+}

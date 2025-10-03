@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Eye, EyeOff, ExternalLink } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 export default function TelegramBotPage() {
+  const t = useTranslations("Telegram")
   const [botToken, setBotToken] = useState("")
   const [show, setShow] = useState(false)
   const [, setLoading] = useState(true) // ignore unused state value
@@ -66,7 +68,7 @@ export default function TelegramBotPage() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json?.error || "Save failed")
-      setSuccess("Paramètres enregistrés")
+      setSuccess(t("saved"))
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Save failed")
     } finally {
@@ -92,18 +94,18 @@ export default function TelegramBotPage() {
   }
 
   return (
-    <DashboardShell title="Telegram Bot">
+    <DashboardShell title={t("title")}>
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="p-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Configurer le bot</h3>
+            <h3 className="text-sm font-semibold">{t("configureBot")}</h3>
             <a
               href="https://t.me/BotFather"
               target="_blank"
               rel="noreferrer"
               className="text-sm underline underline-offset-4"
             >
-              Ouvrir BotFather <ExternalLink className="ml-1 inline size-3" />
+              {t("openBotFather")} <ExternalLink className="ml-1 inline size-3" />
             </a>
           </div>
           <div className="mt-4 grid gap-3">
@@ -116,7 +118,7 @@ export default function TelegramBotPage() {
                   </div>
                   {deepLink ? (
                     <a href={deepLink} target="_blank" rel="noreferrer" className="text-xs underline">
-                      Ouvrir le bot
+                      {t("openBot")}
                     </a>
                   ) : null}
                 </div>
@@ -124,11 +126,11 @@ export default function TelegramBotPage() {
                   <div className="mt-3 flex items-center gap-3">
                     <img
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(deepLink)}`}
-                      alt="QR code"
+                      alt="QR"
                       className="h-24 w-24 rounded bg-white p-1"
                     />
                     <Button type="button" onClick={handleDownloadQr}>
-                      Télécharger le QR
+                      {t("downloadQr")}
                     </Button>
                   </div>
                 ) : null}
@@ -148,28 +150,28 @@ export default function TelegramBotPage() {
               </Button>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="start-message">Message /start</Label>
+              <Label htmlFor="start-message">{t("startMessage")}</Label>
               <textarea
                 id="start-message"
                 className="min-h-24 rounded-md border bg-background px-3 py-2 text-sm"
                 value={startMessage}
                 onChange={(e) => setStartMessage(e.target.value)}
-                placeholder="Bienvenue! Vous recevrez les campagnes publiées ici."
+                placeholder={t("startPlaceholder")}
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="stop-message">Message /stop</Label>
+              <Label htmlFor="stop-message">{t("stopMessage")}</Label>
               <textarea
                 id="stop-message"
                 className="min-h-24 rounded-md border bg-background px-3 py-2 text-sm"
                 value={stopMessage}
                 onChange={(e) => setStopMessage(e.target.value)}
-                placeholder="Vous ne recevrez plus de notifications. Tapez /start pour reprendre."
+                placeholder={t("stopPlaceholder")}
               />
             </div>
             <div>
               <Button onClick={save} disabled={saving}>
-                {saving ? "Enregistrement..." : "Enregistrer"}
+                {saving ? t("saving") : t("save")}
               </Button>
             </div>
             {error ? <p className="text-destructive text-sm">{error}</p> : null}
@@ -177,7 +179,7 @@ export default function TelegramBotPage() {
           </div>
         </Card>
         <Card className="p-4">
-          <h3 className="text-sm font-semibold">Commandes</h3>
+          <h3 className="text-sm font-semibold">{t("commands")}</h3>
           <div className="mt-3 space-y-3 text-sm text-muted-foreground">
             <ul className="list-inside list-disc">
               <li><code>/start</code> — démarrer l’interaction</li>

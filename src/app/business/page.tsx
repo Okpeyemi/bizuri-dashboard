@@ -4,10 +4,12 @@ import { supabaseClient } from "@/lib/supabase/client"
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Card } from "@/components/ui/card"
 import { Loader } from "@/components/ui/loader"
+import { useTranslations } from "next-intl"
 
 type Company = { id: string; name: string; business_email: string; created_at: string }
 
 export default function BusinessPage() {
+  const t = useTranslations("Business")
   const [items, setItems] = useState<Company[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -33,15 +35,15 @@ export default function BusinessPage() {
   }, [])
 
   return (
-    <DashboardShell title="Business (Super Admin)">
+    <DashboardShell title={t("title")}>
       {role !== "super_admin" ? (
-        <p className="text-sm text-muted-foreground">Accès interdit.</p>
+        <p className="text-sm text-muted-foreground">{t("accessDenied")}</p>
       ) : loading ? (
         <Loader />
       ) : error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Aucune entreprise.</p>
+        <p className="text-sm text-muted-foreground">{t("empty")}</p>
       ) : (
         <div className="grid gap-3">
           {items.map((c) => (

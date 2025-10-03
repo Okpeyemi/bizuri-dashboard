@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Loader } from "@/components/ui/loader"
 import { Switch } from "@/components/ui/switch"
+import { useTranslations } from "next-intl"
 
  type Member = {
   user_id: string
@@ -20,6 +21,7 @@ import { Switch } from "@/components/ui/switch"
 }
 
 export default function MembresPage() {
+  const t = useTranslations("Members")
   const [items, setItems] = useState<Member[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -124,7 +126,7 @@ export default function MembresPage() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json?.error || "Invite failed")
-      setSubmitMsg("Membre ajouté avec succès")
+      setSubmitMsg(t("addedSuccess"))
       setEmail("")
       setStatus("agent")
       setPassword("")
@@ -137,45 +139,45 @@ export default function MembresPage() {
   }
 
   return (
-    <DashboardShell title="Membres">
+    <DashboardShell title={t("title")}>
       {role === "business_members" && memberStatus === "agent" ? (
-        <p className="text-sm text-muted-foreground">Accès interdit.</p>
+        <p className="text-sm text-muted-foreground">{t("accessDenied")}</p>
       ) : (
         <div className="mb-4 flex items-center justify-end gap-2">
           <Sheet>
             <SheetTrigger asChild>
-              <Button disabled={atMemberLimit}>Ajouter un membre</Button>
+              <Button disabled={atMemberLimit}>{t("addMember")}</Button>
             </SheetTrigger>
             <SheetContent side="right">
               <SheetHeader>
-                <SheetTitle>Ajouter un membre</SheetTitle>
+                <SheetTitle>{t("addMemberTitle")}</SheetTitle>
               </SheetHeader>
               <form onSubmit={invite} className="mt-4 grid gap-3">
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("email")}</Label>
                   <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="password">Mot de passe</Label>
+                  <Label htmlFor="password">{t("password")}</Label>
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="status">Statut</Label>
+                  <Label htmlFor="status">{t("status")}</Label>
                   <select
                     id="status"
                     className="bg-background text-foreground border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 h-10 w-full rounded-md border px-3 py-2 text-sm"
                     value={status}
                     onChange={(e) => setStatus(e.target.value as "agent" | "manager")}
                   >
-                    <option value="agent">Agent</option>
-                    <option value="manager">Manager</option>
+                    <option value="agent">{t("agent")}</option>
+                    <option value="manager">{t("manager")}</option>
                   </select>
                 </div>
                 <Button type="submit" disabled={submitting || atMemberLimit}>
-                  {submitting ? "Ajout..." : "Ajouter"}
+                  {submitting ? t("submitAdding") : t("submitAdd")}
                 </Button>
                 {atMemberLimit ? (
-                  <a href="/settings?tab=subscription" className="text-xs text-primary underline">Mettre à niveau le plan</a>
+                  <a href="/settings?tab=subscription" className="text-xs text-primary underline">{t("upgradePlan")}</a>
                 ) : null}
                 {submitMsg ? <p className="text-green-600 text-sm">{submitMsg}</p> : null}
                 {error ? <p className="text-destructive text-sm">{error}</p> : null}
@@ -183,7 +185,7 @@ export default function MembresPage() {
             </SheetContent>
           </Sheet>
           {atMemberLimit ? (
-            <a href="/settings?tab=subscription" className="text-xs text-primary underline">Mettre à niveau</a>
+            <a href="/settings?tab=subscription" className="text-xs text-primary underline">{t("upgradePlan")}</a>
           ) : null}
         </div>
       )}
@@ -192,7 +194,7 @@ export default function MembresPage() {
         {loading ? (
           <Loader />
         ) : items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Aucun membre.</p>
+          <p className="text-sm text-muted-foreground">{t("empty")}</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {items.map((m) => (
@@ -202,7 +204,7 @@ export default function MembresPage() {
                     <div className="flex items-center gap-2">
                       <div className="text-sm font-medium">{m.full_name}</div>
                       {m.disabled ? (
-                        <span className="bg-destructive/15 text-destructive rounded px-2 py-0.5 text-[11px]">Désactivé</span>
+                        <span className="bg-destructive/15 text-destructive rounded px-2 py-0.5 text-[11px]">{t("disabled")}</span>
                       ) : null}
                     </div>
                     <div className="text-xs text-muted-foreground">{m.role} · {m.member_status}</div>
@@ -211,12 +213,12 @@ export default function MembresPage() {
                     <span>{new Date(m.created_at).toLocaleDateString()}</span>
                     {role && !(role === "business_members" && memberStatus === "agent") ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px]">Actif</span>
+                        <span className="text-[11px]">{t("active")}</span>
                         <Switch
                           checked={!m.disabled}
                           onCheckedChange={(v) => {
                             if (!v) {
-                              const ok = window.confirm("Désactiver ce membre ? Il ne pourra plus se connecter.")
+                              const ok = window.confirm(t("disableConfirm"))
                               if (!ok) return
                             }
                             toggleAccess(m.user_id, m.disabled)

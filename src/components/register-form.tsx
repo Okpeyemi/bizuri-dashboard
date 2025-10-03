@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 
 export function RegisterForm({
   className,
@@ -13,6 +14,7 @@ export function RegisterForm({
   ...props
 }: React.ComponentProps<"form"> & { fixedRole?: "super_admin" | "business_admin" | "business_members" }) {
   const router = useRouter()
+  const t = useTranslations("Auth.Register")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -36,11 +38,11 @@ export function RegisterForm({
     const company_logo_file = fd.get("company_logo") as File | null
 
     if (password !== confirm) {
-      setError("Passwords do not match")
+      setError(t("errorPasswordsMismatch"))
       return
     }
     if (!full_name || !business_email || !company_name || !password || (!fixedRole && !role)) {
-      setError("Please fill all required fields")
+      setError(t("errorRequired"))
       return
     }
 
@@ -61,12 +63,12 @@ export function RegisterForm({
       if (!res.ok) {
         throw new Error(data?.error || "Registration failed")
       }
-      setSuccess("Account created. You can now log in.")
+      setSuccess(t("successCreated"))
       setTimeout(() => router.push("/login"), 800)
       form.reset()
       setLogoPreview(null)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Something went wrong"
+      const message = err instanceof Error ? err.message : t("errorGeneric")
       setError(message)
     } finally {
       setLoading(false)
@@ -75,54 +77,52 @@ export function RegisterForm({
   return (
     <form className={cn("flex flex-col gap-6", className)} onSubmit={onSubmit} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Create your account</h1>
-        <p className="text-muted-foreground text-sm text-balance">
-          Enter your details below to create your account
-        </p>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
+        <p className="text-muted-foreground text-sm text-balance">{t("subtitle")}</p>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-3">
-          <Label htmlFor="full_name">Full name</Label>
+          <Label htmlFor="full_name">{t("fullName")}</Label>
           <Input id="full_name" name="full_name" type="text" placeholder="John Doe" required />
         </div>
         <div className="grid gap-3">
-          <Label htmlFor="business_email">Business email</Label>
+          <Label htmlFor="business_email">{t("businessEmail")}</Label>
           <Input id="business_email" name="business_email" type="email" placeholder="ceo@acme.com" required />
         </div>
         <div className="grid gap-3">
-          <Label htmlFor="company_name">Company name</Label>
+          <Label htmlFor="company_name">{t("companyName")}</Label>
           <Input id="company_name" name="company_name" type="text" placeholder="Acme Inc." required />
         </div>
         <div className="grid gap-3">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t("password")}</Label>
           <div className="flex items-center gap-2">
             <Input id="password" name="password" type={showPw ? "text" : "password"} required />
             <button
               type="button"
               className="border-input hover:bg-accent hover:text-accent-foreground inline-flex h-10 w-10 items-center justify-center rounded-md border text-sm"
               onClick={() => setShowPw((s) => !s)}
-              aria-label={showPw ? "Hide password" : "Show password"}
+              aria-label={showPw ? t("hidePassword") : t("showPassword")}
             >
               {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
           </div>
         </div>
         <div className="grid gap-3">
-          <Label htmlFor="confirm">Confirm password</Label>
+          <Label htmlFor="confirm">{t("confirmPassword")}</Label>
           <div className="flex items-center gap-2">
             <Input id="confirm" name="confirm" type={showConfirm ? "text" : "password"} required />
             <button
               type="button"
               className="border-input hover:bg-accent hover:text-accent-foreground inline-flex h-10 w-10 items-center justify-center rounded-md border text-sm"
               onClick={() => setShowConfirm((s) => !s)}
-              aria-label={showConfirm ? "Hide password" : "Show password"}
+              aria-label={showConfirm ? t("hidePassword") : t("showPassword")}
             >
               {showConfirm ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
           </div>
         </div>
         <div className="grid gap-3">
-          <Label htmlFor="company_logo">Company logo (optional)</Label>
+          <Label htmlFor="company_logo">{t("companyLogo")}</Label>
           <input
             id="company_logo"
             name="company_logo"
@@ -144,12 +144,12 @@ export function RegisterForm({
           />
           {logoPreview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoPreview} alt="Logo preview" className="h-12 w-12 rounded object-cover" />
+            <img src={logoPreview} alt={t("logoPreviewAlt")} className="h-12 w-12 rounded object-cover" />
           ) : null}
         </div>
         {fixedRole ? null : (
           <div className="grid gap-3">
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role">{t("role")}</Label>
             <select
               id="role"
               name="role"
@@ -157,14 +157,14 @@ export function RegisterForm({
               className="bg-background text-foreground border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 h-10 w-full rounded-md border px-3 py-2 text-sm"
               defaultValue="business_members"
             >
-              <option value="super_admin">Super Admin</option>
-              <option value="business_admin">Business Admin</option>
-              <option value="business_members">Business Member</option>
+              <option value="super_admin">{t("roleOptions.super_admin")}</option>
+              <option value="business_admin">{t("roleOptions.business_admin")}</option>
+              <option value="business_members">{t("roleOptions.business_members")}</option>
             </select>
           </div>
         )}
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Creating account..." : "Sign up"}
+          {loading ? t("creating") : t("signup")}
         </Button>
         {/* Removed social signup */}
       </div>
@@ -175,9 +175,9 @@ export function RegisterForm({
         <p className="text-green-600 text-sm" role="status">{success}</p>
       ) : null}
       <div className="text-center text-sm">
-        Already have an account?{" "}
+        {t("alreadyHave")} {" "}
         <a href="/login" className="underline underline-offset-4">
-          Log in
+          {t("login")}
         </a>
       </div>
     </form>

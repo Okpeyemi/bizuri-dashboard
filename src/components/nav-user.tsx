@@ -5,6 +5,7 @@ import {
   ChevronsUpDown,
   LogOut,
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import {
   Avatar,
@@ -40,6 +41,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const router = useRouter()
+  const t = useTranslations("UserMenu")
 
   return (
     <SidebarMenu>
@@ -87,7 +89,7 @@ export function NavUser({
                 }}
               >
                 <BadgeCheck />
-                Account
+                {t("account")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -98,7 +100,7 @@ export function NavUser({
               }}
             >
               <LogOut />
-              Log out
+              {t("logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

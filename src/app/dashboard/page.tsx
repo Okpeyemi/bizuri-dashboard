@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowUpRight } from "lucide-react"
 import { Loader } from "@/components/ui/loader"
+import { useTranslations } from "next-intl"
 
 type DashboardCounts = {
   campaigns: number
@@ -53,6 +54,7 @@ export default function DashboardPage() {
   const [members, setMembers] = useState<DashboardMember[]>([])
   const [lastSignins, setLastSignins] = useState<LastSignin[]>([])
   const [operations, setOperations] = useState<Operation[]>([])
+  const t = useTranslations("Dashboard")
 
   useEffect(() => {
     let mounted = true
@@ -93,14 +95,14 @@ export default function DashboardPage() {
   }, [])
 
   const kpi = [
-    { label: "Campagnes", value: counts?.campaigns ?? 0 },
-    { label: "Publiées", value: counts?.campaigns_published ?? 0 },
-    { label: "Abonnés Telegram", value: counts?.telegram_subscribers ?? 0 },
-    ...(role === "business_members" ? [] : [{ label: "Membres", value: counts?.members ?? 0 } as const]),
+    { label: t("kpi.campaigns"), value: counts?.campaigns ?? 0 },
+    { label: t("kpi.published"), value: counts?.campaigns_published ?? 0 },
+    { label: t("kpi.telegramSubscribers"), value: counts?.telegram_subscribers ?? 0 },
+    ...(role === "business_members" ? [] : [{ label: t("kpi.members"), value: counts?.members ?? 0 } as const]),
   ]
 
   return (
-    <DashboardShell title="Overview">
+    <DashboardShell>
       {loading ? (
         <Loader />
       ) : error ? (
@@ -122,18 +124,18 @@ export default function DashboardPage() {
             {role !== "business_members" ? (
             <Card className="p-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold">Membres récents</h3>
+                <h3 className="text-sm font-semibold">{t("recentMembers")}</h3>
                 <a
                   href="/membres"
                   className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
-                  aria-label="Voir les membres"
-                  title="Voir les membres"
+                  aria-label={t("viewMembers")}
+                  title={t("viewMembers")}
                 >
                   <ArrowUpRight className="size-4" />
                 </a>
               </div>
               {members.length === 0 ? (
-                <p className="text-sm text-muted-foreground mt-2">Aucun membre récemment.</p>
+                <p className="text-sm text-muted-foreground mt-2">{t("noRecentMembers")}</p>
               ) : (
                 <div className="mt-3 grid gap-3">
                   {members.map((m) => {
@@ -161,18 +163,18 @@ export default function DashboardPage() {
             {/* Recent Campaigns */}
             <Card className="p-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold">Dernières campagnes</h3>
+                <h3 className="text-sm font-semibold">{t("latestCampaigns")}</h3>
                 <a
                   href="/campagnes"
                   className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
-                  aria-label="Voir toutes les campagnes"
-                  title="Voir toutes les campagnes"
+                  aria-label={t("viewAllCampaigns")}
+                  title={t("viewAllCampaigns")}
                 >
                   <ArrowUpRight className="size-4" />
                 </a>
               </div>
               {recentCampaigns.length === 0 ? (
-                <p className="text-sm text-muted-foreground mt-2">Aucune campagne.</p>
+                <p className="text-sm text-muted-foreground mt-2">{t("noCampaigns")}</p>
               ) : (
                 <div className="mt-3 grid gap-3">
                   {recentCampaigns.map((c) => (
@@ -195,18 +197,18 @@ export default function DashboardPage() {
             {/* Latest Telegram Subscribers */}
             <Card className="p-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold">Nouveaux abonnés Telegram</h3>
+                <h3 className="text-sm font-semibold">{t("latestTelegramSubscribers")}</h3>
                 <a
                   href="/clients"
                   className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
-                  aria-label="Voir tous les abonnés Telegram"
-                  title="Voir tous les abonnés Telegram"
+                  aria-label={t("viewAllSubscribers")}
+                  title={t("viewAllSubscribers")}
                 >
                   <ArrowUpRight className="size-4" />
                 </a>
               </div>
               {subscribers.length === 0 ? (
-                <p className="text-sm text-muted-foreground mt-2">Aucun abonné récemment.</p>
+                <p className="text-sm text-muted-foreground mt-2">{t("noRecentSubscribers")}</p>
               ) : (
                 <div className="mt-3 grid gap-3">
                   {subscribers.map((u) => {
@@ -234,12 +236,12 @@ export default function DashboardPage() {
             {role === "super_admin" ? (
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold">Business</h3>
+                  <h3 className="text-sm font-semibold">{t("business")}</h3>
                   <a href="/business" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
                     <ArrowUpRight className="size-4" />
                   </a>
                 </div>
-                <p className="text-sm text-muted-foreground mt-2">Voir toutes les entreprises inscrites.</p>
+                <p className="text-sm text-muted-foreground mt-2">{t("seeAllCompanies")}</p>
               </Card>
             ) : null}
           </div>
@@ -248,12 +250,12 @@ export default function DashboardPage() {
             <div className="grid gap-6">
               {/* Statuses */}
               <Card className="p-4">
-                <h3 className="text-sm font-semibold">Statuts</h3>
+                <h3 className="text-sm font-semibold">{t("statuses")}</h3>
                 <div className="mt-3 grid gap-6">
                   <div>
-                    <h4 className="text-xs font-semibold text-muted-foreground">Dernières connexions</h4>
+                    <h4 className="text-xs font-semibold text-muted-foreground">{t("lastSignins")}</h4>
                     {lastSignins.length === 0 ? (
-                      <p className="text-sm text-muted-foreground mt-2">Aucune connexion récente.</p>
+                      <p className="text-sm text-muted-foreground mt-2">{t("noRecentSignins")}</p>
                     ) : (
                       <div className="mt-2 grid gap-2">
                         {lastSignins.map((s) => (
@@ -266,9 +268,9 @@ export default function DashboardPage() {
                     )}
                   </div>
                   <div>
-                    <h4 className="text-xs font-semibold text-muted-foreground">Dernières opérations</h4>
+                    <h4 className="text-xs font-semibold text-muted-foreground">{t("lastOperations")}</h4>
                     {operations.length === 0 ? (
-                      <p className="text-sm text-muted-foreground mt-2">Aucune opération récente.</p>
+                      <p className="text-sm text-muted-foreground mt-2">{t("noRecentOperations")}</p>
                     ) : (
                       <div className="mt-2 grid gap-2">
                         {operations.map((op, idx) => (

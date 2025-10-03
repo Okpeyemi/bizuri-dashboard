@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { DashboardShell } from "@/components/dashboard-shell"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Loader } from "@/components/ui/loader"
+import { useTranslations } from "next-intl"
 
 type Client = {
   id: string
@@ -25,6 +26,7 @@ type TelegramUser = {
 }
 
 export default function ClientsPage() {
+  const t = useTranslations("Clients")
   const [items, setItems] = useState<Client[]>([])
   const [tgUsers, setTgUsers] = useState<TelegramUser[]>([])
   const [loading, setLoading] = useState(true)
@@ -58,17 +60,17 @@ export default function ClientsPage() {
   }, [])
 
   return (
-    <DashboardShell title="Clients">
+    <DashboardShell title={t("title")}>
       {loading ? (
         <Loader />
       ) : error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : tgUsers.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Aucun abonné Telegram.</p>
+        <p className="text-sm text-muted-foreground">{t("noTelegram")}</p>
       ) : (
         <div className="grid gap-8">
           <div>
-            <h3 className="mb-2 text-sm font-semibold">Abonnés Telegram</h3>
+            <h3 className="mb-2 text-sm font-semibold">{t("telegramSubscribers")}</h3>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {tgUsers.map((u) => {
                 const name = [u.first_name, u.last_name].filter(Boolean).join(" ") || u.username || `@${u.user_id}`

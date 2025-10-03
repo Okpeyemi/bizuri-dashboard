@@ -2,6 +2,8 @@
 import { RequireAuth } from "@/components/require-auth"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ModeToggle } from "@/components/theme-toggle"
+import { LocaleSwitcher } from "@/components/locale-switcher"
+import { useTranslations } from "next-intl"
 import {
   SidebarInset,
   SidebarProvider,
@@ -24,6 +26,8 @@ export function DashboardShell({
   title?: string
   children: React.ReactNode
 }) {
+  const tCommon = useTranslations("Common")
+  const tSidebar = useTranslations("Sidebar")
   return (
     <RequireAuth>
       <SidebarProvider>
@@ -36,16 +40,17 @@ export function DashboardShell({
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                    <BreadcrumbLink href="/dashboard">{tSidebar("nav.dashboard")}</BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>{title || "Overview"}</BreadcrumbPage>
+                    <BreadcrumbPage>{title || tCommon("overview")}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
             <div className="flex items-center gap-2">
+              <LocaleSwitcher />
               <ModeToggle />
             </div>
           </header>

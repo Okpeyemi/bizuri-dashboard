@@ -2,6 +2,7 @@
 
 import { ChevronRight, type LucideIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
+import { useTranslations } from "next-intl"
 
 import {
   Collapsible,
@@ -34,9 +35,10 @@ export function NavMain({
   }[]
 }) {
   const pathname = usePathname()
+  const t = useTranslations("Nav")
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("platform")}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
           const hasChildren = !!(item.items && item.items.length > 0)

@@ -1,0 +1,232 @@
+{
+  "LocaleSwitcher": {
+    "label": "Change language",
+    "en": "English",
+    "fr": "French"
+  },
+  "Common": {
+    "overview": "Overview",
+    "organization": "Organization"
+  },
+  "Nav": {
+    "platform": "Platform"
+  },
+  "Sidebar": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "campagnes": "Campaigns",
+      "clients": "Clients",
+      "membres": "Members",
+      "settings": "Settings",
+      "telegram_bot": "Telegram Bot",
+      "business": "Business",
+      "logs": "Logs"
+    },
+    "plan": {
+      "label": "Plan",
+      "membersRemaining": "Members remaining",
+      "campaignsRemaining": "Campaigns remaining",
+      "upgrade": "Upgrade"
+    },
+    "defaults": {
+      "user": "User",
+      "company": "Company"
+    }
+  },
+  "Dashboard": {
+    "kpi": {
+      "campaigns": "Campaigns",
+      "published": "Published",
+      "telegramSubscribers": "Telegram subscribers",
+      "members": "Members"
+    },
+    "recentMembers": "Recent members",
+    "viewMembers": "View members",
+    "noRecentMembers": "No recent members.",
+    "latestCampaigns": "Latest campaigns",
+    "viewAllCampaigns": "View all campaigns",
+    "noCampaigns": "No campaigns.",
+    "latestTelegramSubscribers": "Latest Telegram subscribers",
+    "viewAllSubscribers": "View all Telegram subscribers",
+    "noRecentSubscribers": "No recent subscribers.",
+    "business": "Business",
+    "seeAllCompanies": "See all registered companies.",
+    "statuses": "Statuses",
+    "lastSignins": "Last sign-ins",
+    "noRecentSignins": "No recent sign-ins.",
+    "lastOperations": "Last operations",
+    "noRecentOperations": "No recent operations."
+  },
+  "Home": {
+    "redirecting": "Redirecting..."
+  },
+  "Auth": {
+    "Login": {
+      "title": "Login to your account",
+      "subtitle": "Enter your email below to login to your account",
+      "email": "Email",
+      "password": "Password",
+      "forgotPassword": "Forgot your password?",
+      "hidePassword": "Hide password",
+      "showPassword": "Show password",
+      "submitLoading": "Signing in...",
+      "submit": "Login",
+      "errorEmpty": "Please enter your email and password",
+      "errorGeneric": "Unable to login",
+      "noAccount": "Don't have an account?",
+      "signup": "Sign up"
+    },
+    "Register": {
+      "title": "Create your account",
+      "subtitle": "Enter your details below to create your account",
+      "fullName": "Full name",
+      "businessEmail": "Business email",
+      "companyName": "Company name",
+      "companyLogo": "Company logo (optional)",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "role": "Role",
+      "roleOptions": {
+        "super_admin": "Super Admin",
+        "business_admin": "Business Admin",
+        "business_members": "Business Member"
+      },
+      "hidePassword": "Hide password",
+      "showPassword": "Show password",
+      "creating": "Creating account...",
+      "signup": "Sign up",
+      "alreadyHave": "Already have an account?",
+      "login": "Log in",
+      "logoPreviewAlt": "Logo preview",
+      "errorPasswordsMismatch": "Passwords do not match",
+      "errorRequired": "Please fill all required fields",
+      "errorGeneric": "Something went wrong",
+      "successCreated": "Account created. You can now log in.",
+      "errorRegistrationFailed": "Registration failed"
+    }
+  },
+  "UserMenu": {
+    "account": "Account",
+    "logout": "Log out"
+  },
+  "Clients": {
+    "title": "Clients",
+    "telegramSubscribers": "Telegram subscribers",
+    "noTelegram": "No Telegram subscribers."
+  },
+  "Campagnes": {
+    "title": "Campaigns",
+    "create": "Create campaign",
+    "createTitle": "Create a campaign",
+    "name": "Name",
+    "description": "Description",
+    "status": "Status",
+    "image": "Image",
+    "start": "Start",
+    "end": "End",
+    "promotionType": "Promotion type",
+    "percentage": "Percentage",
+    "amount": "Amount",
+    "value": "Value",
+    "submitCreating": "Creating...",
+    "submitCreate": "Create",
+    "upgradePlan": "Upgrade plan",
+    "configureBotFirst": "Configure the bot first",
+    "empty": "No campaigns.",
+    "startLabel": "Start:",
+    "endLabel": "End:",
+    "promotionLabel": "Promotion:"
+  },
+  "Members": {
+    "title": "Members",
+    "accessDenied": "Access forbidden.",
+    "addMember": "Add member",
+    "addMemberTitle": "Add a member",
+    "email": "Email",
+    "password": "Password",
+    "status": "Status",
+    "agent": "Agent",
+    "manager": "Manager",
+    "submitAdding": "Adding...",
+    "submitAdd": "Add",
+    "upgradePlan": "Upgrade plan",
+    "addedSuccess": "Member added successfully",
+    "empty": "No members.",
+    "disabled": "Disabled",
+    "active": "Active",
+    "disableConfirm": "Disable this member? They will no longer be able to sign in."
+  },
+  "Settings": {
+    "title": "Settings",
+    "tabs": {
+      "general": "General",
+      "subscription": "Subscription",
+      "company": "Company"
+    },
+    "timezone": "Timezone",
+    "language": "Language",
+    "notifications": "Notifications",
+    "saving": "Saving...",
+    "save": "Save",
+    "saved": "Settings saved",
+    "planSaved": "Plan saved",
+    "subscriptionPlan": "Subscription plan",
+    "savePlan": "Save plan",
+    "onlyAdmin": "Only the administrator can change the plan.",
+    "companyLogo": "Company logo",
+    "loading": "Loading...",
+    "changeLogo": "Change logo"
+  },
+  "Business": {
+    "title": "Business (Super Admin)",
+    "accessDenied": "Access forbidden.",
+    "empty": "No companies."
+  },
+  "Logs": {
+    "title": "Logs (Super Admin)",
+    "accessDenied": "Access forbidden.",
+    "campaigns": "Campaigns",
+    "noRecentCampaigns": "No recent campaigns.",
+    "members": "Members",
+    "noRecentMembers": "No recent members.",
+    "telegramSubscribers": "Telegram subscribers",
+    "noRecentSubscribers": "No recent subscribers."
+  },
+  "Account": {
+    "title": "Account",
+    "avatar": "Avatar",
+    "loading": "Loading...",
+    "changeAvatar": "Change avatar",
+    "email": "Email",
+    "fullName": "Full name",
+    "companyName": "Company name",
+    "saving": "Saving...",
+    "save": "Save",
+    "profileUpdated": "Profile updated",
+    "changePassword": "Change password",
+    "newPassword": "New password",
+    "hide": "Hide",
+    "show": "Show",
+    "confirmPassword": "Confirm password",
+    "changePasswordButton": "Change password",
+    "passwordAtLeast8": "Password must be at least 8 characters",
+    "passwordsMismatch": "Passwords do not match",
+    "passwordUpdated": "Password updated",
+    "passwordUpdateFailed": "Failed to update password"
+  },
+  "Telegram": {
+    "title": "Telegram Bot",
+    "configureBot": "Configure bot",
+    "openBotFather": "Open BotFather",
+    "openBot": "Open bot",
+    "downloadQr": "Download QR",
+    "startMessage": "/start message",
+    "startPlaceholder": "Welcome! You will receive published campaigns here.",
+    "stopMessage": "/stop message",
+    "stopPlaceholder": "You will no longer receive notifications. Type /start to resume.",
+    "saving": "Saving...",
+    "save": "Save",
+    "saved": "Settings saved",
+    "commands": "Commands"
+  }
+}

@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Loader } from "@/components/ui/loader"
+import { useTranslations } from "next-intl"
 
 function SettingsContent() {
+  const t = useTranslations("Settings")
   const [timezone, setTimezone] = useState<string | "">("")
   const [language, setLanguage] = useState<string | "">("")
   const [notifications, setNotifications] = useState<boolean>(true)
@@ -98,7 +100,7 @@ function SettingsContent() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json?.error || "Save failed")
-      setSuccess("Paramètres enregistrés")
+      setSuccess(t("saved"))
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Save failed")
     } finally {
@@ -121,7 +123,7 @@ function SettingsContent() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json?.error || "Save failed")
-      setSuccess("Plan enregistré")
+      setSuccess(t("planSaved"))
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Save failed")
     } finally {
@@ -152,7 +154,7 @@ function SettingsContent() {
   }
 
   return (
-    <DashboardShell title="Settings">
+    <DashboardShell title={t("title")}>
       <Card className="w-3xl mx-auto p-4">
         {loading ? (
           <Loader />
@@ -160,27 +162,27 @@ function SettingsContent() {
           <div className="grid gap-4">
             <Tabs defaultValue={defaultTab}>
               <TabsList className="w-full">
-                <TabsTrigger value="general" className="flex-1">Général</TabsTrigger>
-                <TabsTrigger value="subscription" className="flex-1">Abonnement</TabsTrigger>
-                <TabsTrigger value="company" className="flex-1">Entreprise</TabsTrigger>
+                <TabsTrigger value="general" className="flex-1">{t("tabs.general")}</TabsTrigger>
+                <TabsTrigger value="subscription" className="flex-1">{t("tabs.subscription")}</TabsTrigger>
+                <TabsTrigger value="company" className="flex-1">{t("tabs.company")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="general">
                 <div className="grid gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="timezone">Timezone</Label>
+                    <Label htmlFor="timezone">{t("timezone")}</Label>
                     <Input id="timezone" value={timezone} onChange={(e) => setTimezone(e.target.value)} placeholder="Africa/Abidjan" />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="language">Language</Label>
+                    <Label htmlFor="language">{t("language")}</Label>
                     <Input id="language" value={language} onChange={(e) => setLanguage(e.target.value)} placeholder="fr" />
                   </div>
                   <div className="flex items-center gap-2">
                     <input id="notifications" type="checkbox" checked={notifications} onChange={(e) => setNotifications(e.target.checked)} />
-                    <Label htmlFor="notifications">Notifications</Label>
+                    <Label htmlFor="notifications">{t("notifications")}</Label>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button onClick={save} disabled={saving}>{saving ? "Enregistrement..." : "Enregistrer"}</Button>
+                    <Button onClick={save} disabled={saving}>{saving ? t("saving") : t("save")}</Button>
                     {success ? <span className="text-green-600 text-sm">{success}</span> : null}
                     {error ? <span className="text-destructive text-sm">{error}</span> : null}
                   </div>
@@ -190,7 +192,7 @@ function SettingsContent() {
               <TabsContent value="subscription">
                 <div className="grid gap-4">
                   <div className="grid gap-2">
-                    <Label>Plan d&apos;abonnement</Label>
+                    <Label>{t("subscriptionPlan")}</Label>
                     <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
                       <label className={`border-input hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md border p-2 text-sm ${plan === "freemium" ? "ring-2 ring-ring" : ""}`}>
                         <input type="radio" name="plan" value="freemium" checked={plan === "freemium"} onChange={() => setPlan("freemium")} /> Freemium
@@ -214,10 +216,10 @@ function SettingsContent() {
                     ) : null}
                     <div className="flex items-center gap-2">
                       <Button onClick={savePlan} disabled={savingPlan || !(role === "super_admin" || role === "business_admin") }>
-                        {savingPlan ? "Enregistrement..." : "Enregistrer le plan"}
+                        {savingPlan ? t("saving") : t("savePlan")}
                       </Button>
                       {role && !(role === "super_admin" || role === "business_admin") ? (
-                        <span className="text-xs text-muted-foreground">Seul l&apos;administrateur peut modifier le plan.</span>
+                        <span className="text-xs text-muted-foreground">{t("onlyAdmin")}</span>
                       ) : null}
                     </div>
                   </div>
@@ -227,7 +229,7 @@ function SettingsContent() {
               <TabsContent value="company">
                 <div className="grid gap-4">
                   <div className="grid gap-2">
-                    <Label>Logo de l&apos;entreprise</Label>
+                    <Label>{t("companyLogo")}</Label>
                     <div className="flex items-center gap-4">
                       {companyLogoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -253,7 +255,7 @@ function SettingsContent() {
                           disabled={uploadingLogo || (role === "business_members" && memberStatus === "agent")}
                           onClick={() => fileRef.current?.click()}
                         >
-                          {uploadingLogo ? "Chargement..." : "Changer le logo"}
+                          {uploadingLogo ? t("loading") : t("changeLogo")}
                         </Button>
                         {role === "business_members" && memberStatus === "agent" ? (
                           <span className="text-xs text-muted-foreground">Seul l’administrateur peut changer le logo.</span>
