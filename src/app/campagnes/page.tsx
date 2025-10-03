@@ -261,7 +261,7 @@ export default function CampagnesPage() {
       ) : items.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("empty")}</p>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
           {items.map((c) => (
             <Card key={c.id} className="p-4">
               <div className="flex items-start justify-between">

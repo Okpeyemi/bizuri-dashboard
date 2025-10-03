@@ -71,7 +71,7 @@ export default function ClientsPage() {
         <div className="grid gap-8">
           <div>
             <h3 className="mb-2 text-sm font-semibold">{t("telegramSubscribers")}</h3>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
               {tgUsers.map((u) => {
                 const name = [u.first_name, u.last_name].filter(Boolean).join(" ") || u.username || `@${u.user_id}`
                 const initials = (name || "?").split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()

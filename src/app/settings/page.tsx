@@ -155,11 +155,11 @@ function SettingsContent() {
 
   return (
     <DashboardShell title={t("title")}>
-      <Card className="w-3xl mx-auto p-4">
+      <Card className="mx-auto w-full p-4">
         {loading ? (
           <Loader />
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-4 grid-cols-1">
             <Tabs defaultValue={defaultTab}>
               <TabsList className="w-full">
                 <TabsTrigger value="general" className="flex-1">{t("tabs.general")}</TabsTrigger>
