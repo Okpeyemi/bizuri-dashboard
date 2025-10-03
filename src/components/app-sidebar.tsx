@@ -2,26 +2,18 @@
 
 import * as React from "react"
 import {
-  AudioWaveform,
   Bot,
-  Command,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
   Settings2,
   LayoutDashboard,
   Megaphone,
   Users,
   UserCog,
 } from "lucide-react"
-import { useTranslations } from "next-intl"
 import { LucideIcon } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
-import { NavProjects } from "@/components/nav-projects"
 import {
   Sidebar,
   SidebarContent,
@@ -43,10 +35,6 @@ const baseNav = [
 
 // Provide local data for header switcher, main nav, and projects
 const data = {
-  teams: [
-    { name: "Bizuri", logo: GalleryVerticalEnd, plan: "Premium" },
-    { name: "Analytics", logo: PieChart, plan: "Free" },
-  ],
   navMain: baseNav,
   projects: [] as { name: string; url: string; icon: LucideIcon }[],
 }
@@ -57,6 +45,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     email: string
     avatar: string
   } | null>(null)
+  const [companyName, setCompanyName] = React.useState<string>("")
+  const [companyLogoUrl, setCompanyLogoUrl] = React.useState<string>("")
 
   React.useEffect(() => {
     let mounted = true
@@ -68,12 +58,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       const meta = u.user_metadata as Record<string, unknown> | null
       const fullName =
         meta && typeof meta["full_name"] === "string" ? (meta["full_name"] as string) : undefined
-      
+      const avatarUrl =
+        meta && typeof meta["avatar_url"] === "string" ? (meta["avatar_url"] as string) : ""
+      const companyNameMeta =
+        meta && typeof meta["company_name"] === "string" ? (meta["company_name"] as string) : ""
+      const companyLogoUrlMeta =
+        meta && typeof meta["company_logo_url"] === "string"
+          ? (meta["company_logo_url"] as string)
+          : ""
+
       setCurrentUser({
         name: fullName || u.email?.split("@")[0] || "User",
         email: u.email || "",
-        avatar: "/avatars/shadcn.jpg",
+        avatar: avatarUrl || "",
       })
+      // Seed company info from metadata (will be refined by /api/account)
+      setCompanyName(companyNameMeta || "")
+      setCompanyLogoUrl(companyLogoUrlMeta || "")
     })()
     return () => {
       mounted = false
@@ -89,15 +90,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         const token = session.session?.access_token
         if (!mounted || !token) return
 
-        // Load user role and member status - remove unused assignments
-        const { data: user } = await supabaseClient.auth.getUser()
-        const meta = user.user?.user_metadata as Record<string, unknown> | undefined
-        // Remove: const role = meta && typeof meta["role"] === "string" ? (meta["role"] as string) : undefined
-
-        const res = await fetch("/api/members", { headers: { Authorization: `Bearer ${token}` } })
+        const res = await fetch("/api/account", { headers: { Authorization: `Bearer ${token}` } })
         if (res.ok) {
           const json = await res.json()
-          // Remove: const memberStatus = json.members?.find((m: any) => m.user_id === user.user?.id)?.status
+
+          const meta = (json?.user?.metadata || {}) as Record<string, unknown>
+          const fullName =
+            typeof meta["full_name"] === "string" ? (meta["full_name"] as string) : undefined
+          const avatarUrl =
+            typeof meta["avatar_url"] === "string" ? (meta["avatar_url"] as string) : ""
+          const companyNameApi =
+            (typeof json?.company?.name === "string" && (json.company.name as string)) ||
+            (typeof meta["company_name"] === "string" ? (meta["company_name"] as string) : "")
+          const companyLogoUrlMeta =
+            (typeof meta["company_logo_url"] === "string"
+              ? (meta["company_logo_url"] as string)
+              : "") || null
+
+          setCurrentUser((prev) => ({
+            name: fullName || prev?.name || "User",
+            email: prev?.email || "",
+            avatar: avatarUrl || prev?.avatar || "",
+          }))
+          setCompanyName(companyNameApi || "")
+          setCompanyLogoUrl(companyLogoUrlMeta || "")
         }
       } catch {
         // Ignore errors silently
@@ -111,16 +127,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <div className="px-2 py-1.5">
+          <div className="flex items-center gap-2">{companyLogoUrl ? (
+                <img src={companyLogoUrl} alt={companyName || "Company logo"} className="size-8 rounded-lg" />
+              ) : (
+            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden">
+              
+                <GalleryVerticalEnd className="size-4" />
+            </div>
+              )}
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-black">{companyName || "Entreprise"}</span>
+            </div>
+          </div>
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={currentUser || { name: "User", email: "", avatar: "/avatars/shadcn.jpg" }} />
+        <NavUser user={currentUser || { name: "User", email: "", avatar: "" }} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )
 }
+
